@@ -10,6 +10,7 @@ import SwiftMath
 import SwiftUI
 
 class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
+    
     var windowSize = Signal<Size>(Size(640, 480));
     var window: NSWindow!
     
@@ -40,7 +41,7 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
         return mainMenu
     }
     
-    public override init() {
+    override init() {
         let window = NSWindow(contentRect: NSMakeRect(0, 0, CGFloat(windowSize.value.width), CGFloat(windowSize.value.height)), styleMask: [NSWindow.StyleMask.titled, NSWindow.StyleMask.closable, NSWindow.StyleMask.miniaturizable, NSWindow.StyleMask.resizable], backing: .buffered, defer: false)
         window.center()
         window.title = "Font Renderer"
@@ -54,14 +55,6 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     
     open func applicationDidFinishLaunching(_ notification: Notification) {
-        var rect = window.frame
-        rect.origin.x = 0.0
-        rect.origin.y = 0.0
-        
-        let child = NSHostingController(rootView: ContentView())
-        child.view.translatesAutoresizingMaskIntoConstraints = false
-        child.view.frame = rect
-        self.window.contentView = child.view
         self.window.delegate = self
         self.window.makeKeyAndOrderFront(window)
         self.applicationCreate()

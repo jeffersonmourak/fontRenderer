@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "FontRenderer",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v14)
     ],
     dependencies: [
         .package(path: "../FontLoader"),

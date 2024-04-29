@@ -23,19 +23,15 @@ struct FontRenderer: ParsableCommand {
    
 
     func run() {
-        guard let fontData = readFile(fromPath: fontPath) else {
-            print("No File at \(fontPath)")
-            return
-        }
+
+//        
+//        print("Using Font: \(fontPath)")
         
-        print("Using Font: \(fontPath)")
+//        
         
-        let app = ViewportApplication()
+        let app = FontRendererApplication()
+        app.inputPath = fontPath
         app.run()
-        
-        let font = FontLoader(withData: fontData)
-        font.getGlyph()
-        
         
         
 //        var data :NSData? = FileUtility.dataFromPath("data") as? NSData

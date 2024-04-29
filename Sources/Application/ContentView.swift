@@ -7,27 +7,40 @@
 
 import Foundation
 import SwiftUI
+import UniformTypeIdentifiers
 
-struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        
-        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
-        
-        return path
+
+
+struct ContentView : View {
+    var initialPath: String
+    @State private var fontPath: String
+    
+    init(_ initialPath: String) {
+        self.initialPath = initialPath
+        self.fontPath = initialPath
+    }
+    
+    var body: some View {
+        VStack() {
+            FileInputView(fontPath: $fontPath)
+            if let fontRenderView = try? FontRenderView(fontPath: fontPath){
+                fontRenderView.frame(width: 640, height: 430)
+            } else {
+                Text("Error loading")
+            }
+        }.padding().frame(width: 640, height: 480)
     }
 }
 
-struct ContentView : View {
-    var body: some View {
-        ZStack(alignment: .center) {
-            Triangle()
-                .stroke(.red, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-                .frame(width: 300, height: 300)
-                .padding()
-        }.frame(width: 640, height: 480)
+
+extension NSOpenPanel {
+    var selectUrl: URL? {
+        title = "Select Image"
+        allowsMultipleSelection = false
+        canChooseDirectories = false
+        canChooseFiles = true
+        canCreateDirectories = false
+        allowedContentTypes = [.font]
+        return runModal() == .OK ? urls.first : nil
     }
 }
