@@ -52,8 +52,12 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/jeffersonmourak/swift/FontRenderer/Examples/FiraCode-Regular.ttf"
+            argument = "/Users/jeffersonmourak/swift/FontRenderer/Examples/JetBrainsMono-Bold.ttf"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jeffersonmourak/swift/FontRenderer/Examples/FiraCode-Regular.ttf"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

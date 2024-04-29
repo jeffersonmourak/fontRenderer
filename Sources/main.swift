@@ -1,6 +1,9 @@
 import Foundation
 import ArgumentParser
 import FontLoader
+import Darwin.C
+import Cocoa
+
 
 func readFile(fromPath path: String) -> Data? {
     let fileURL = URL(fileURLWithPath: path)
@@ -15,19 +18,25 @@ func readFile(fromPath path: String) -> Data? {
 }
 
 
-struct Random: ParsableCommand {
+struct FontRenderer: ParsableCommand {
     @Argument() var fontPath: String
+   
 
     func run() {
-        
         guard let fontData = readFile(fromPath: fontPath) else {
             print("No File at \(fontPath)")
             return
         }
         
-        let font = FontLoader(withData: fontData)
+        print("Using Font: \(fontPath)")
         
-        print(font.glyf)
+        let app = ViewportApplication()
+        app.run()
+        
+        let font = FontLoader(withData: fontData)
+        font.getGlyph()
+        
+        
         
 //        var data :NSData? = FileUtility.dataFromPath("data") as? NSData
         
@@ -37,4 +46,4 @@ struct Random: ParsableCommand {
     }
 }
 
-Random.main()
+FontRenderer.main()
