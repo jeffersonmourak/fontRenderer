@@ -9,76 +9,63 @@ import Foundation
 import SwiftUI
 import FontLoader
 
-struct FontValidationError : LocalizedError {
-    let description: String
-    
-    init (_ description: String) {
-        self.description = description
-    }
-    
-    var errorDescription: String? {
-        description
-    }
-}
-
-@Observable class Font {
-    var path: String
-    let font: FontLoader
-    
-    
-    init(path: String) throws {
-        self.path = path
-        
-        guard let fontData = readFile(fromPath: path) else {
-           throw FontValidationError("Unable to read")
-        }
-        
-        font = FontLoader(withData: fontData)
-    }
-    
-    
-    func getGlyph(at index: Int) -> SimpleGlyphTable? {
-        return font.glyphs[index]
-    }
+enum CurrentGlyph {
+    case missing
+    case error(String)
+    case existing(SimpleGlyphTable)
 }
 
 struct FontRenderView : View {
-    @State var font: Font
-    @State var _selectedGlyph: Int
-    @State var glyphCount: Range<Int>
-    @State var currentGlyph: SimpleGlyphTable?
+    var loader: FontLoader
     
-    init(fontPath: String) throws {
-        let fontData = try Font(path: fontPath)
-        self.font = fontData
-        _selectedGlyph = 0
-        glyphCount = 0..<fontData.font.glyphs.count
-        currentGlyph = self.font.getGlyph(at: 0)
+    @State var selectedGlyph: Int = 0
+    @State var glyphCount: Int
+    @State var currentGlyph: CurrentGlyph
+    @State var fontScale = 0.3
+    
+    init(_ loader: FontLoader, startingAt selectedGlyph: Int = 2) {
+        
+        self.loader = loader
+        self.selectedGlyph = selectedGlyph
+        glyphCount = loader.glyphs.count
+        let glyphData =  loader.glyphs[selectedGlyph]
+        
+        currentGlyph = glyphData != nil ? .existing(glyphData!) : .missing
+    }
+    
+    @ViewBuilder
+    func viewGlyph(for state: CurrentGlyph) -> some View {
+        switch state {
+        case let .error(message):
+            Text(message)
+        case let .existing(glyph):
+            RenderGlyphView(glyphData: glyph, scale: fontScale)
+        case .missing:
+            Text("Missing Glyph")
+        }
     }
     
     var body: some View {
-        let selectedGlyph = Binding(
-            get: {
-                return self._selectedGlyph
-            },
-            set: {
-                self.currentGlyph = self.font.getGlyph(at: $0)
-                self._selectedGlyph = $0
-            }
-        )
         VStack {
-            Picker("Glyph Index", selection: selectedGlyph) {
-                ForEach(glyphCount) { glyphIndex in
-                    Text("\(glyphIndex)")
+            HStack {
+                Picker("Glyph Index", selection: $selectedGlyph) {
+                    ForEach(0..<glyphCount) { glyphIndex in
+                        Text("\(glyphIndex)")
+                    }
+                }.onChange(of: selectedGlyph) {
+                    let glyphData =  loader.glyphs[selectedGlyph]
+                    
+                    currentGlyph = glyphData != nil ? .existing(glyphData!) : .missing
                 }
-            }.frame(width: 200, height: 30)
+                Slider(
+                    value: $fontScale,
+                    in: 0.1...1
+                    
+                )
+                Text("\(fontScale)")
+            }.frame(height: 30)
             HStack(alignment: .center){
-                if currentGlyph != nil {
-                    Triangle(glyphData: currentGlyph, scale: 0.3)
-                        .stroke(.red, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
-                } else {
-                    Text("Cant load Glyph!")
-                }
+                viewGlyph(for: currentGlyph)
             }.padding().frame(width: 640, height: 400)
             
         }
@@ -90,62 +77,106 @@ struct Coordinates {
     let y: Int
 }
 
-struct Triangle: Shape {
-    var glyphData: SimpleGlyphTable?
-    var scale: Float = 1
-    
-    func toScale<T: BinaryInteger>(_ value: T) -> CGFloat {
-        return CGFloat(value) * CGFloat(scale)
-    }
+struct Line: Shape {
+    var a: CGPoint
+    var b: CGPoint
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
-                guard let glyph = glyphData else {
-                    return path
-                }
-        
-                let coordinatesCount = glyph.xCoordinates.count
-        
-                let xCoord = glyph.xCoordinates.map(toScale)
-                let yCoord = glyph.yCoordinates.map(toScale)
-        
-                let yOffset = toScale(glyph.yMax)
-                let xOffset = toScale(glyph.xMax)
-        
-                path.move(to: CGPoint(x: xOffset - xCoord[0], y: yOffset - yCoord[0]))
-        
-                let colors: [NSColor] = [
-                    .red,
-                    .green,
-                    .blue,
-                    .yellow,
-                    .purple,
-                    .brown,
-                    .cyan,
-                    .orange,
-                    .gray,
-                ]
-        
-                print(glyph)
-        
-                for i in 1..<coordinatesCount {
-        //            let color = colors[i - 1]
-        
-                    let current = CGPoint(x: xOffset - xCoord[i], y: yOffset - yCoord[i])
-        
-                    if (glyph.endPtsOfContours.contains(i)) {
-                        path.move(to: current)
-                    } else {
-                        path.addLine(to: current)
-                    }
-                }
-        
-        
-        
-//                path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-//                path.addLine(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.move(to: a)
+        path.addLine(to: b)
         
         return path
+    }
+}
+
+struct RenderGlyphView: View {
+    var glyphData: SimpleGlyphTable?
+    var scale: Double = 1
+    
+    var path = Path()
+    
+    func getPoints() -> [CGPoint] {
+        guard let glyph = glyphData else {
+            return []
+        }
+        
+        var coords: [CGPoint] = []
+        
+        for i in 0..<glyph.xCoordinates.count {
+            let x = toScale(glyph.xCoordinates[i])
+            let y = toScale(glyph.yCoordinates[i])
+            coords.append(CGPoint(x: x, y: y))
+        }
+        
+        return coords
+    }
+    
+    func toScale<T: BinaryInteger>(_ value: T) -> CGFloat {
+        return CGFloat(Int((CGFloat(value) * CGFloat(scale)) * 1000) / 1000)
+    }
+    
+    let colors: [Color] = [
+        .red,
+        .green,
+        .blue,
+        .yellow,
+        .purple,
+        .brown,
+        .cyan,
+        .orange,
+        .gray,
+    ]
+    
+    var body: some View {
+        Canvas { context, size in
+            guard let glyph = glyphData else {
+                return
+            }
+            let coords = getPoints()
+            var nextSegmentIndex = 0
+            var beginOfContour: Int = 0
+            
+            var path = Path()
+            path.move(to: coords[0])
+            
+            var points: [CGPoint] = [coords[0]]
+            for i in 1..<coords.count {
+                let current = coords[i]
+                let nextSegment = glyph.endPtsOfContours[nextSegmentIndex]
+                
+                points.append(current)
+
+                if (i == nextSegment) {
+                    
+                    points.append(coords[beginOfContour])
+                    
+                    path.addLines(points)
+                    context.stroke(path, with: .color(colors[nextSegmentIndex]), lineWidth: 2)
+                    
+                    points = []
+                    beginOfContour = nextSegment + 1
+                    nextSegmentIndex += 1
+                }
+            }
+        }
+    }
+}
+
+extension CGPoint: AdditiveArithmetic {
+    public static func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+    }
+    
+    public static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+    
+    public static func - (lhs: CGPoint, rhs: Double) -> CGPoint {
+        return CGPoint(x: lhs.x - rhs, y: lhs.y - rhs)
+    }
+    
+    public static func + (lhs: CGPoint, rhs: Double) -> CGPoint {
+        return CGPoint(x: lhs.x + rhs, y: lhs.y + rhs)
     }
 }

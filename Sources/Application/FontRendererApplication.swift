@@ -27,7 +27,6 @@ class FontRendererApplication: ViewportApplication {
         var rect = window.frame
         rect.origin.x = 0.0
         rect.origin.y = 0.0
-//        let context = ApplicationContext(.init(glyph: nil))
         
         let child = NSHostingController(rootView: ContentView(inputPath))
         child.view.translatesAutoresizingMaskIntoConstraints = false
