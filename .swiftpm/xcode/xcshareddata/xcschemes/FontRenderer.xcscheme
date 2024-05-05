@@ -59,6 +59,10 @@
             argument = "/Users/jeffersonmourak/swift/FontRenderer/Examples/FiraCode-Regular.ttf"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jeffersonmourak/swift/FontRenderer/Examples/MonoLisa-Regular.ttf"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
