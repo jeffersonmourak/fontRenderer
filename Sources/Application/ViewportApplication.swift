@@ -52,6 +52,21 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
         application.delegate = self
         application.activate(ignoringOtherApps:true)
         NSApplication.shared.mainMenu = makeMainMenu()
+        
+        guard let mainScreen = NSScreen.main else {
+
+        assertionFailure()
+
+        return
+
+        }
+        
+        window.styleMask = NSWindow.StyleMask(rawValue: window.styleMask.rawValue | NSWindow.StyleMask.resizable.rawValue)
+
+        let mainScreenFrame = mainScreen.frame
+        let mainScreenVisibleFrame = mainScreen.visibleFrame
+        
+        window.maxSize = .init(width: mainScreenVisibleFrame.width / 2, height: mainScreenVisibleFrame.height / 2)
     }
     
     open func applicationDidFinishLaunching(_ notification: Notification) {

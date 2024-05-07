@@ -29,30 +29,27 @@ enum GlyphRenderType: Identifiable {
 struct FontRenderView : View {
     var loader: FontLoader
     
-    @State var glyphCount: Int
     @State var currentGlyph: CurrentGlyph
-    @State var fontScale = 0.3
+    @State var fontRenderScale = 0.3
+    @State var fontHeight: Double = 730
     @State var inputText: String = ""
     @State var showDefaultGlyph: Bool = false
     
     init(_ loader: FontLoader) {
         
         self.loader = loader
-        glyphCount = loader.glyphs.count
-        let glyphData =  loader.glyphs[0]
-        
-        currentGlyph = glyphData != nil ? .existing(glyphData!) : .missing
+        currentGlyph = .missing
     }
     
     @ViewBuilder
     func RenderGlyph(withType type: GlyphRenderType) -> some View {
         switch type {
         case .space:
-            Rectangle().fill(.clear).frame(width: 500 * fontScale, height: 730 * fontScale)
+            Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: fontHeight * fontRenderScale)
         case let .character(char):
-            RenderGlyphView(glyphData: loader.glyphs[char.glyphIndex], scale: fontScale)
+            RenderGlyphView(glyph: loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
         case let .glyph(index):
-            RenderGlyphView(glyphData: loader.glyphs[index], scale: fontScale)
+            RenderGlyphView(glyph: loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
         }
     }
     
@@ -98,17 +95,28 @@ struct FontRenderView : View {
                 }
             }.frame(maxHeight: .infinity)
             VStack {
-                HStack {
+                VStack(alignment: .leading) {
                     Toggle(isOn: $showDefaultGlyph) {
                         Text("Show Default Glyph")
                     }
                     .toggleStyle(.checkbox)
-                    Text("Font Scale \(fontScale)")
-                    Slider(
-                        value: $fontScale,
-                        in: 0.1...1
-                        
-                    )
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("Font Scale \(fontRenderScale)")
+                            Slider(
+                                value: $fontRenderScale,
+                                in: 0.1...1
+                                
+                            )
+                        }
+                        VStack(alignment: .leading) {
+                            Text("Font Height \(Int(fontHeight))")
+                            Slider(
+                                value: $fontHeight,
+                                in: Double(loader.fontInfo.yMin)...Double(loader.fontInfo.yMax)
+                            )
+                        }
+                    }
                 }.padding()
                 
                 TextEditor(text: $inputText)
@@ -143,35 +151,18 @@ struct Line: Shape {
 }
 
 struct RenderGlyphView: View {
-    var glyphData: SimpleGlyphTable?
+    var glyph: Glyph
     var scale: Double = 1
+    var fontHeight: Double
     
     var path = Path()
     
-    func getPoints() -> [CGPoint] {
-        guard let glyph = glyphData else {
-            return []
-        }
-        
-        var coords: [CGPoint] = []
-        
-//        print(glyph)
-        
-        for i in 0..<glyph.xCoordinates.count {
-            let x = toScale(glyph.xCoordinates[i])
-            
-            let rawY = (730 - glyph.yCoordinates[i])
-            
-            let y = toScale(rawY)
-            
-            coords.append(CGPoint(x: x, y: y))
-        }
-        
-        return coords
-    }
-    
     func toScale<T: BinaryInteger>(_ value: T) -> CGFloat {
         return CGFloat(Int((CGFloat(value) * CGFloat(scale)) * 1000) / 1000)
+    }
+    
+    func toScale(_ value: CGFloat) -> CGFloat {
+        return CGFloat((value * CGFloat(scale)) * 1000 / 1000)
     }
     
     let colors: [Color] = [
@@ -187,30 +178,24 @@ struct RenderGlyphView: View {
     ]
     
     var body: some View {
-        let width = (Int(glyphData?.xMax ?? 0) - Int(glyphData?.xMin ?? 0)) + 100
+        
+        let (minBounding, maxBounding) = glyph.contours.glyphBox
         
         Canvas { context, size in
-            
-            guard let glyph = glyphData else {
-                return
-            }
-            let coords = getPoints()
+            let coords = glyph.contours.points.map { CGPoint(x: toScale($0.x), y: toScale($0.y)) }
             var nextSegmentIndex = 0
             var beginOfContour: Int = 0
-            
-//            print(glyph)
-            
-            let minPoints = CGPoint(x: Int(glyph.xMin), y: Int(glyph.yMin))
-            let maxPoints = CGPoint(x: Int(glyph.xMax), y: Int(glyph.yMax))
+            let (minPoints, maxPoints) = glyph.contours.glyphBox
             
             if coords.count == 0 {
                 return;
             }
             
-            let _ = SafeCanvas(withBoundary: .init(a: minPoints, b:maxPoints))
+            // @TODO: Find what to do with SafeCanvas
+            //let _ = SafeCanvas(withBoundary: .init(a: minPoints, b:maxPoints))
             
             var path = Path()
-            path.move(to: .init(x: Int(glyph.xMin), y: Int(glyph.yMin)))
+            path.move(to: minPoints)
             path.addLines([
                 .init(x: 0, y: 0),
                 .init(x: size.width, y: .zero),
@@ -223,13 +208,13 @@ struct RenderGlyphView: View {
             context.stroke(path, with: .color(.purple), lineWidth: 5)
             
             path = Path()
-            path.move(to: .init(x: Int(glyph.xMin), y: Int(glyph.yMin)))
+            path.move(to: minPoints)
             path.addLines([
-                .init(x: toScale(glyph.xMin), y: toScale(730 - Int(glyph.yMin))),
-                .init(x: toScale(glyph.xMax), y: toScale(730 - Int(glyph.yMin))),
-                .init(x: toScale(glyph.xMax), y: toScale(730 - Int(glyph.yMax))),
-                .init(x: toScale(glyph.xMin), y: toScale(730 - Int(glyph.yMax))),
-                .init(x: toScale(glyph.xMin), y: toScale(730 - Int(glyph.yMin)))
+                .init(x: toScale(minBounding.x), y: toScale(fontHeight - minBounding.y)),
+                .init(x: toScale(glyph.fontLayout.horizontalMetrics.advanceWidth), y: toScale(fontHeight - minBounding.y)),
+                .init(x: toScale(glyph.fontLayout.horizontalMetrics.advanceWidth), y: toScale(fontHeight)),
+                .init(x: toScale(minBounding.x), y: toScale(fontHeight)),
+                .init(x: toScale(minBounding.x), y: toScale(fontHeight - minBounding.y))
                 ]
             )
             
@@ -237,11 +222,11 @@ struct RenderGlyphView: View {
             
             path = Path()
             path.move(to: coords[0])
-            
+                    
             var points: [CGPoint] = [coords[0]]
             for i in 1..<coords.count {
                 let current = coords[i]
-                let nextSegment = nextSegmentIndex < glyph.endPtsOfContours.count ? glyph.endPtsOfContours[nextSegmentIndex] : glyph.endPtsOfContours.last!
+                let nextSegment = nextSegmentIndex < glyph.simpleGlyph.endPtsOfContours.count ? glyph.simpleGlyph.endPtsOfContours[nextSegmentIndex] : glyph.simpleGlyph.endPtsOfContours.last!
                 
                 points.append(current)
                 
@@ -249,13 +234,12 @@ struct RenderGlyphView: View {
                     points.append(coords[beginOfContour])
                     path.addLines(points)
                     context.stroke(path, with: .color(.gray), lineWidth: 2)
-//                    print(points)
                     points = []
                     beginOfContour = nextSegment + 1
                     nextSegmentIndex += 1
                 }
             }
-        }.frame(width: toScale(width))
+        }.frame(width: toScale(maxBounding.x))
     }
 }
 

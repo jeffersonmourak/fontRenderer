@@ -22,10 +22,6 @@ let package = Package(
                 "FontLoader",
                 "SwiftMath",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-            ],
-            resources: [
-                .copy("Shaders/fragment.frag"),
-                .copy("Shaders/vertex.vert")
             ]
         ),
     ]

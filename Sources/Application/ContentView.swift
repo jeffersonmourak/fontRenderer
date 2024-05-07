@@ -57,11 +57,7 @@ func loadFont(_ path: String) throws -> FontLoader {
 }
 
 struct ContentView : View {
-    //    private var font: FontFile?
     @State private var fontPath: String
-    //    @State private var renderEnabled: Bool = false
-    //    @State private var stateMessage: String = ""
-    
     @State private var contentState: ViewState
     
     
@@ -82,14 +78,15 @@ struct ContentView : View {
         case let .error(message):
             Text(message)
         case let .loaded(loader):
-            FontRenderView(loader).frame(width: 640, height: 430)
+            ScrollView(.vertical) {
+                FontRenderView(loader).frame(width: 640).frame(minHeight: 430).frame(maxHeight: .infinity)
+            }.frame(width: 640, height: 430)
         case .loading:
             Text("Loaded!")
         }
     }
     
     var body: some View {
-        
         VStack() {
             FileInputView(fontPath: $fontPath).onChange(of: fontPath) {
                 do {
@@ -100,45 +97,14 @@ struct ContentView : View {
                 }
             }
             view(for: contentState)
-//            if contentState.isState("loading") {
-//                Text("Loading...")
-//            } else if contentState.isState("error") {
-//                Text("error")
-//            } else if contentState.isState("loaded") {
-//
-//            }
-            //            Group { () -> Text in
-            //                switch(contentState) {
-            //                case .loading:
-            //
-            //                case let .error(message):
-            //
-            //                case let .loaded(loader): do {
-            //                    return
-            //                }
-            //                }
-            //            }
-            
-            //            if renderEnabled {
-            //
-            //            } else {
-            //                Text(stateMessage)
-            //            }
-            
-            
-            //            if let fontRenderView = try? {
-            //                fontRenderView
-            //            } else {
-            //                Text("Error loading")
-            //            }
-        }.padding().frame(width: 640, height: 480)
+        }.padding().frame(width: 640, height: 500)
     }
 }
 
 
 extension NSOpenPanel {
     var selectUrl: URL? {
-        title = "Select Image"
+        title = "Select Font File"
         allowsMultipleSelection = false
         canChooseDirectories = false
         canChooseFiles = true
