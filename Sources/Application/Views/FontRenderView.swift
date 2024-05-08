@@ -177,25 +177,16 @@ struct RenderGlyphView: View {
         .gray,
     ]
     
+    
+    
     var body: some View {
-        
-        let (minBounding, maxBounding) = glyph.contours.glyphBox
+        let width = glyph.glyphBox.max.width > glyph.fontLayout.horizontalMetrics.advanceWidth ? CGFloat(glyph.glyphBox.max.width) : CGFloat(glyph.fontLayout.horizontalMetrics.advanceWidth)
         
         Canvas { context, size in
-            let coords = glyph.contours.points.map { CGPoint(x: toScale($0.x), y: toScale($0.y)) }
-            var nextSegmentIndex = 0
-            var beginOfContour: Int = 0
-            let (minPoints, maxPoints) = glyph.contours.glyphBox
-            
-            if coords.count == 0 {
-                return;
-            }
-            
             // @TODO: Find what to do with SafeCanvas
             //let _ = SafeCanvas(withBoundary: .init(a: minPoints, b:maxPoints))
             
             var path = Path()
-            path.move(to: minPoints)
             path.addLines([
                 .init(x: 0, y: 0),
                 .init(x: size.width, y: .zero),
@@ -207,39 +198,25 @@ struct RenderGlyphView: View {
             
             context.stroke(path, with: .color(.purple), lineWidth: 5)
             
-            path = Path()
-            path.move(to: minPoints)
-            path.addLines([
-                .init(x: toScale(minBounding.x), y: toScale(fontHeight - minBounding.y)),
-                .init(x: toScale(glyph.fontLayout.horizontalMetrics.advanceWidth), y: toScale(fontHeight - minBounding.y)),
-                .init(x: toScale(glyph.fontLayout.horizontalMetrics.advanceWidth), y: toScale(fontHeight)),
-                .init(x: toScale(minBounding.x), y: toScale(fontHeight)),
-                .init(x: toScale(minBounding.x), y: toScale(fontHeight - minBounding.y))
-                ]
-            )
-            
-            context.stroke(path, with: .color(.green), lineWidth: 5)
-            
-            path = Path()
-            path.move(to: coords[0])
+            for glyphContours in glyph.contours {
+                let coords = glyphContours.map {
+                    let newY = Int(glyph.glyphBox.max.y) - $0.y
                     
-            var points: [CGPoint] = [coords[0]]
-            for i in 1..<coords.count {
-                let current = coords[i]
-                let nextSegment = nextSegmentIndex < glyph.simpleGlyph.endPtsOfContours.count ? glyph.simpleGlyph.endPtsOfContours[nextSegmentIndex] : glyph.simpleGlyph.endPtsOfContours.last!
-                
-                points.append(current)
-                
-                if (i == nextSegment) {
-                    points.append(coords[beginOfContour])
-                    path.addLines(points)
-                    context.stroke(path, with: .color(.gray), lineWidth: 2)
-                    points = []
-                    beginOfContour = nextSegment + 1
-                    nextSegmentIndex += 1
+                    
+                    return CGPoint(x: toScale($0.x), y: toScale(newY))
                 }
+     
+                if coords.count == 0 {
+                    return;
+                }
+                
+                path = Path()
+                path.move(to: coords[0])
+                path.addLines(coords)
+                context.stroke(path, with: .color(.gray), lineWidth: 2)
             }
-        }.frame(width: toScale(maxBounding.x))
+            
+        }.frame(width: toScale(width), height: toScale(Int(glyph.glyphBox.max.y) + glyph.baseLineDistance))
     }
 }
 
