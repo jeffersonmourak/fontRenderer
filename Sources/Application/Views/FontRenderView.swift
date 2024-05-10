@@ -47,9 +47,9 @@ struct FontRenderView : View {
         case .space:
             Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: fontHeight * fontRenderScale)
         case let .character(char):
-            RenderGlyphView(glyph: loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
+            RenderGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
         case let .glyph(index):
-            RenderGlyphView(glyph: loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
+            RenderGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
         }
     }
     
@@ -126,8 +126,8 @@ struct FontRenderView : View {
                     .onReceive(Just(inputText)) { _ in limitText(100) }
                 
             }
-            .frame(height: 90)
+            .frame(height: 100)
             .padding()
-        }
+        }.frame(minHeight: 410)
     }
 }

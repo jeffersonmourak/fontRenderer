@@ -30,12 +30,12 @@ enum ViewState {
 
 func readFile(fromPath path: String) -> Data? {
     let fileURL = URL(fileURLWithPath: path)
-
+    
     do {
         let data = try Data(contentsOf: fileURL)
         return data
     } catch {
-//        print("Error reading data: \(error)")
+        //        print("Error reading data: \(error)")
         return nil
     }
 }
@@ -59,11 +59,13 @@ func loadFont(_ path: String) throws -> FontLoader {
 struct ContentView : View {
     @State private var fontPath: String
     @State private var contentState: ViewState
+    @State private var selectedTab: Int
     
     
     
     init(_ initialPath: String) {
         fontPath = initialPath
+        selectedTab = 1
         do {
             let font = try loadFont(initialPath)
             self.contentState = .loaded(font)
@@ -78,9 +80,26 @@ struct ContentView : View {
         case let .error(message):
             Text(message)
         case let .loaded(loader):
-            ScrollView(.vertical) {
-                FontRenderView(loader).frame(width: 640).frame(minHeight: 430).frame(maxHeight: .infinity)
-            }.frame(width: 640, height: 430)
+            
+                TabView(selection: $selectedTab) {
+                    HStack {
+                        ScrollView(.vertical) {
+                            selectedTab == 1 ? FontRenderView(loader): nil
+                        }.padding()
+                    }.frame(width: 640, height: 480).tabItem {
+                        Text("Type")
+                    }.tag(1)
+                    
+                    HStack{
+                        ScrollView(.vertical) {
+                            selectedTab == 2 ? FontRenderAllView(loader) : nil
+                        }.padding()
+                    }.frame(width: 640, height: 480).tabItem {
+                        Text("All Glyphs")
+                    }.tag(2)
+                
+            }
+            
         case .loading:
             Text("Loaded!")
         }

@@ -9,10 +9,31 @@ import Foundation
 import SwiftUI
 import FontLoader
 
+struct RenderStrokeOptions {
+    var color: Color
+    var width: CGFloat
+}
+
+fileprivate let DEFAULT_GLYPH_STROKE_OPTIONS: RenderStrokeOptions = .init(color: .gray, width: 2)
+fileprivate let DEFAULT_OUTLINE_STROKE_OPTIONS: RenderStrokeOptions = .init(color: .purple, width: 4)
+
+struct RenderGlyphOptions {
+    var glyph: RenderStrokeOptions
+    var outline: RenderStrokeOptions
+    
+    public static func create(
+        usingGlyph glyph: RenderStrokeOptions = DEFAULT_GLYPH_STROKE_OPTIONS,
+        usingOutline outline: RenderStrokeOptions = DEFAULT_OUTLINE_STROKE_OPTIONS) -> RenderGlyphOptions {
+        
+        return .init(glyph: glyph, outline: outline)
+    }
+}
+
 struct RenderGlyphView: View {
     var glyph: Glyph
     var scale: Double = 1
     var fontHeight: Double
+    var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
     
     var path = Path()
     
@@ -52,9 +73,9 @@ struct RenderGlyphView: View {
                 .init(x: size.width, y: size.height),
                 .init(x: .zero, y: size.height),
                 .init(x: 0, y: 0)
-                ]
+            ]
             )
-            context.stroke(path, with: .color(.purple), lineWidth: 4)
+            context.stroke(path, with: .color(renderOptions.outline.color), lineWidth: renderOptions.outline.width)
             
             for glyphContours in glyph.contours {
                 let coords = glyphContours.map {
@@ -63,7 +84,7 @@ struct RenderGlyphView: View {
                     
                     return CGPoint(x: toScale(newX), y: toScale(newY))
                 }
-     
+                
                 if coords.count == 0 {
                     return;
                 }
@@ -71,7 +92,7 @@ struct RenderGlyphView: View {
                 path = Path()
                 path.move(to: coords[0])
                 path.addLines(coords)
-                context.stroke(path, with: .color(.gray), lineWidth: 2)
+                context.stroke(path, with: .color(renderOptions.glyph.color), lineWidth: renderOptions.glyph.width)
             }
             
         }.frame(width: toScale(width), height: toScale(glyph.fontLayout.fontBoundaries.1.y * 0.7))
