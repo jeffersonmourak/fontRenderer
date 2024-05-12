@@ -1,5 +1,5 @@
 //
-//  RenderGlyphView.swift
+//  SharedGlyphView.swift
 //
 //
 //  Created by Jefferson Oliveira on 5/9/24.
@@ -29,7 +29,7 @@ struct RenderGlyphOptions {
     }
 }
 
-struct RenderGlyphView: View {
+struct SharedGlyphView: View {
     var glyph: Glyph
     var scale: Double = 1
     var fontHeight: Double
@@ -60,7 +60,7 @@ struct RenderGlyphView: View {
     
     
     var body: some View {
-        let width = glyph.glyphBox.xMax > Double(glyph.fontLayout.horizontalMetrics.advanceWidth) ? CGFloat(glyph.glyphBox.xMax) : CGFloat(glyph.fontLayout.horizontalMetrics.advanceWidth)
+        let width = CGFloat(glyph.glyphBox.xMax)
         
         Canvas { context, size in
             // @TODO: Find what to do with SafeCanvas
@@ -79,7 +79,7 @@ struct RenderGlyphView: View {
             
             for glyphContours in glyph.contours {
                 let coords = glyphContours.map {
-                    let newY = ((glyph.fontLayout.fontBoundaries.1.y * 0.7) - $0.y) - Double(glyph.baseLineDistance)
+                    let newY = ((glyph.maxPoints.y * 0.7) - $0.y) - Double(glyph.baseLineDistance)
                     let newX = $0.x
                     
                     return CGPoint(x: toScale(newX), y: toScale(newY))
@@ -95,6 +95,6 @@ struct RenderGlyphView: View {
                 context.stroke(path, with: .color(renderOptions.glyph.color), lineWidth: renderOptions.glyph.width)
             }
             
-        }.frame(width: toScale(width), height: toScale(glyph.fontLayout.fontBoundaries.1.y * 0.7))
+        }.frame(width: toScale(width), height: toScale(glyph.maxPoints.y * 0.7))
     }
 }

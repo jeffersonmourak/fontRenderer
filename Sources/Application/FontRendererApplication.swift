@@ -21,16 +21,15 @@ class FontRendererApplication: ViewportApplication {
         super.init()
     }
     
-    
-    
     override func applicationCreate() {
         var rect = window.frame
         rect.origin.x = 0.0
         rect.origin.y = 0.0
         
-        let child = NSHostingController(rootView: ContentView(inputPath))
-        child.view.translatesAutoresizingMaskIntoConstraints = false
-        child.view.frame = rect
-        self.window.contentView = child.view
+        let controller = NSHostingController(rootView: ContentView(inputPath))
+        controller.sizingOptions = [.standardBounds]
+        controller.view.frame = rect
+        self.window.contentViewController = controller
+        
     }
 }

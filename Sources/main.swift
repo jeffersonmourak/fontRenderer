@@ -3,6 +3,7 @@ import ArgumentParser
 import FontLoader
 import Darwin.C
 import Cocoa
+import SwiftUI
 
 struct FontRenderer: ParsableCommand {
     @Argument() var fontPath: String

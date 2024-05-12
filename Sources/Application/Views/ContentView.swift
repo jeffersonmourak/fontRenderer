@@ -56,16 +56,18 @@ func loadFont(_ path: String) throws -> FontLoader {
     }
 }
 
+enum FontViews: String {
+    case type = "type"
+    case all = "all"
+}
+
 struct ContentView : View {
     @State private var fontPath: String
     @State private var contentState: ViewState
-    @State private var selectedTab: Int
+    @State private var currentView: FontViews = .type
     
-    
-    
-    init(_ initialPath: String) {
+    init(_ initialPath: String = "") {
         fontPath = initialPath
-        selectedTab = 1
         do {
             let font = try loadFont(initialPath)
             self.contentState = .loaded(font)
@@ -75,48 +77,48 @@ struct ContentView : View {
     }
     
     @ViewBuilder
-    func view(for state: ViewState) -> some View {
+    func LoadFontView(for state: ViewState) -> some View {
         switch state {
         case let .error(message):
             Text(message)
         case let .loaded(loader):
-            
-                TabView(selection: $selectedTab) {
-                    HStack {
-                        ScrollView(.vertical) {
-                            selectedTab == 1 ? FontRenderView(loader): nil
-                        }.padding()
-                    }.frame(width: 640, height: 480).tabItem {
-                        Text("Type")
-                    }.tag(1)
-                    
-                    HStack{
-                        ScrollView(.vertical) {
-                            selectedTab == 2 ? FontRenderAllView(loader) : nil
-                        }.padding()
-                    }.frame(width: 640, height: 480).tabItem {
-                        Text("All Glyphs")
-                    }.tag(2)
-                
+            switch currentView {
+            case .type:
+                FontRenderView(loader)
+            case .all:
+                FontRenderAllView(loader)
             }
-            
         case .loading:
             Text("Loaded!")
         }
     }
     
     var body: some View {
-        VStack() {
-            FileInputView(fontPath: $fontPath).onChange(of: fontPath) {
-                do {
-                    let font = try loadFont(fontPath)
-                    self.contentState = .loaded(font)
-                } catch {
-                    self.contentState = .error(error.localizedDescription)
+        NavigationSplitView{
+            List(selection: $currentView) {
+                NavigationLink(value: FontViews.type) {
+                    Label("Type Text", systemImage: "text.quote")
+                }
+                NavigationLink(value: FontViews.all) {
+                    Label("All Glyphs", systemImage: "square.grid.3x2")
+                }
+            }.toolbar(removing: .sidebarToggle)
+            
+            
+        } detail: {
+            LoadFontView(for: contentState)
+        }.toolbar {
+            ToolbarItemGroup {
+                SharedFontInputView(fontPath: $fontPath).onChange(of: fontPath) {
+                    do {
+                        let font = try loadFont(fontPath)
+                        self.contentState = .loaded(font)
+                    } catch {
+                        self.contentState = .error(error.localizedDescription)
+                    }
                 }
             }
-            view(for: contentState)
-        }.padding().frame(width: 640, height: 500)
+        }
     }
 }
 

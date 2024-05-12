@@ -36,7 +36,6 @@ struct FontRenderView : View {
     @State var showDefaultGlyph: Bool = false
     
     init(_ loader: FontLoader) {
-        
         self.loader = loader
         currentGlyph = .missing
     }
@@ -47,9 +46,9 @@ struct FontRenderView : View {
         case .space:
             Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: fontHeight * fontRenderScale)
         case let .character(char):
-            RenderGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
         case let .glyph(index):
-            RenderGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
         }
     }
     
@@ -93,32 +92,8 @@ struct FontRenderView : View {
                 ScrollView(.horizontal) {
                     viewGlyph(for: currentGlyph).padding()
                 }
-            }.frame(maxHeight: .infinity)
+            }.frame(minHeight: 410, maxHeight: .infinity)
             VStack {
-                VStack(alignment: .leading) {
-                    Toggle(isOn: $showDefaultGlyph) {
-                        Text("Show Default Glyph")
-                    }
-                    .toggleStyle(.checkbox)
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Font Scale \(fontRenderScale)")
-                            Slider(
-                                value: $fontRenderScale,
-                                in: 0.1...1
-                                
-                            )
-                        }
-                        VStack(alignment: .leading) {
-                            Text("Font Height \(Int(fontHeight))")
-                            Slider(
-                                value: $fontHeight,
-                                in: Double(loader.fontInfo.yMin)...Double(loader.fontInfo.yMax)
-                            )
-                        }
-                    }
-                }.padding()
-                
                 TextEditor(text: $inputText)
                     .lineLimit(3, reservesSpace: true)
                     .font(.system(.body))
@@ -126,8 +101,26 @@ struct FontRenderView : View {
                     .onReceive(Just(inputText)) { _ in limitText(100) }
                 
             }
-            .frame(height: 100)
             .padding()
-        }.frame(minHeight: 410)
+        }.toolbar(content: {
+            ToolbarItemGroup(placement: .principal) {
+                HStack {
+                    Toggle(isOn: $showDefaultGlyph){
+                        Image(systemName: showDefaultGlyph ? "eye" : "eye.slash")
+                    }
+                    .help("Toggle display default glyph")
+                    .toggleStyle(.button)
+                }
+                Spacer()
+                Image(systemName: "textformat.size")
+                Slider(
+                    value: $fontRenderScale,
+                    in: 0.1...1
+                )
+                .help("Font render scale")
+                .disabled(!showDefaultGlyph && inputText.count == 0)
+                .frame(minWidth: 200, maxWidth: 400)
+            }
+        })
     }
 }

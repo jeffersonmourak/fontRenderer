@@ -11,7 +11,7 @@ import SwiftUI
 
 class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
-    var windowSize = Signal<Size>(Size(640, 480));
+    var windowSize = Signal<Size>(Size(880, 480));
     var window: NSWindow!
     
     func makeMainMenu() -> NSMenu {
