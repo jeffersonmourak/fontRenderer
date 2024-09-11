@@ -10,20 +10,22 @@ import SwiftUI
 import FontLoader
 
 struct GlyphRowView: View {
-    var fontRenderScale = 0.3
-    var fontHeight: Double = 800
-    @State var glyph: Glyph
-    @State var debugLevels: [DebugLevel]
+    var loader: FontLoader
+    var offset: Int = 0
+    @Binding var debugLevels: [DebugLevel]
     
-    
-    init(_ loader: FontLoader, _ offset: Int, debugLevels: [DebugLevel] = []) {
-        self.debugLevels = debugLevels
-        do {
-            glyph = try loader.getGlyphContours(at: offset)
-        } catch {
-            glyph = try! loader.getGlyphContours(at: 0)
+    var glyph: Glyph {
+        get {
+            do {
+                return try loader.getGlyphContours(at: offset)
+            } catch {
+                return try! loader.getGlyphContours(at: 0)
+            }
         }
     }
+    
+    var fontRenderScale = 0.3
+    var fontHeight: Double = 800
     
     var body: some View {
         SharedGlyphView(
@@ -34,7 +36,7 @@ struct GlyphRowView: View {
                 usingGlyph: .init(color: .white, width: 2),
                 usingOutline: .init(color: .white, width: 1)    
             ),
-            debugLevels: debugLevels
+            debugLevels: $debugLevels
         )
     }
 }

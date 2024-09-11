@@ -19,15 +19,10 @@ struct GlyphRow: Identifiable {
 
 
 struct FontRenderAllView : View {
-    @State var debugLevels: [DebugLevel]
     var loader: FontLoader
+    @Binding var debugLevels: [DebugLevel]
     var rowCount = 3
-    
-    init(_ loader: FontLoader, debugLevels: [DebugLevel] = []) {
-        self.loader = loader
-        self.debugLevels = debugLevels
-    }
-    
+        
     func toIndex(_ base: Int, offset: Int = 0) -> Int {
         return (base * rowCount) + offset
     }
@@ -37,9 +32,9 @@ struct FontRenderAllView : View {
             LazyVStack {
                 ForEach(0..<Int(loader.memoryInfo.numGlyphs) / rowCount, id: \.self) { index in
                     HStack {
-                        GlyphRowView(loader, toIndex(index, offset: 0), debugLevels: debugLevels)
-                        GlyphRowView(loader, toIndex(index, offset: 1), debugLevels: debugLevels)
-                        GlyphRowView(loader, toIndex(index, offset: 2), debugLevels: debugLevels)
+                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 0), debugLevels: $debugLevels)
+                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 1), debugLevels: $debugLevels)
+                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 2), debugLevels: $debugLevels)
                     }
                 }
             }

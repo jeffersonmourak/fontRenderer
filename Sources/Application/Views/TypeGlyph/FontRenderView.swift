@@ -29,29 +29,23 @@ enum GlyphRenderType: Identifiable {
 struct FontRenderView : View {
     var loader: FontLoader
     
-    @State var currentGlyph: CurrentGlyph
+    @State var currentGlyph: CurrentGlyph = .missing
     @State var fontRenderScale = 0.3
     @State var fontHeight: Double = 730
     @State var inputText: String = ""
     @State var showDefaultGlyph: Bool = false
-    @State var debugLevels: [DebugLevel]
+    @Binding var debugLevels: [DebugLevel]
     
-    init(_ loader: FontLoader, debugLevels: [DebugLevel] = []) {
-        self.loader = loader
-        self.debugLevels = debugLevels
-        
-        currentGlyph = .missing
-    }
-    
+
     @ViewBuilder
     func RenderGlyph(withType type: GlyphRenderType) -> some View {
         switch type {
         case .space:
             Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: CGFloat(loader.fontInfo.unitsPerEm) * fontRenderScale)
         case let .character(char):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: debugLevels)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
         case let .glyph(index):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: debugLevels)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
         }
     }
     

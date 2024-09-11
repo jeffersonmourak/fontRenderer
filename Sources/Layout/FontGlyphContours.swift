@@ -12,6 +12,7 @@ import SwiftUI
 enum DebugLevel {
     case Contours
     case Baseline
+    case Borders
 }
 
 enum DebugColors {
@@ -24,6 +25,8 @@ enum DebugColors {
     case CYAN
     case ORANGE
     case GRAY
+    case PINK
+    case INDIGO
 }
 
 let DEBUG_COLORS: [DebugColors] = [
@@ -47,6 +50,58 @@ struct ContoursInstructions {
 struct Vector4 {
     let a: CGPoint
     let b: CGPoint
+}
+
+
+func getContourBoundary(points: [CGPoint]) -> ((CGFloat, CGFloat), (CGFloat, CGFloat)) {
+    var minX = points[0].x
+    var maxX = points[0].x
+    var minY = points[0].y
+    var maxY = points[0].y
+    
+    for point in points {
+        if point.x < minX {
+            minX = point.x
+        }
+        if (point.x > maxX) {
+            maxX = point.x
+        }
+        
+        if (point.y < minY) {
+            minY = point.y
+        }
+        
+        if (point.y > maxY) {
+            maxY = point.y
+        }
+    }
+    
+    return ((minX, minY), (maxX, maxY))
+}
+
+func getContoursBoundaries(contours: [[CGPoint]]) -> ((CGFloat, CGFloat), (CGFloat, CGFloat)) {
+    var ((minX, minY), (maxX, maxY)) = getContourBoundary(points: contours[0])
+    
+    for points in contours {
+        let ((cMinX, cMinY), (cMaxX, cMaxY)) = getContourBoundary(points: points)
+        
+        if cMinX < minX {
+            minX = cMinX
+        }
+        if (cMaxX > maxX) {
+            maxX = cMaxX
+        }
+        
+        if (cMinY < minY) {
+            maxY = cMinY
+        }
+        
+        if (cMaxY > maxY) {
+            maxY = cMaxY
+        }
+    }
+    
+    return ((minX, minY), (maxX, maxY))
 }
 
 class FontGlyphContours {
@@ -80,7 +135,20 @@ class FontGlyphContours {
         get {
             let a: CGPoint = .init(x: 0, y: toScale(glyph.layout.height))
             let b: CGPoint = .init(x: glyph.layout.width, y: toScale(glyph.layout.height))
-            return .init(origin: a, points: [a, b], debugRenderColor: DebugColors.GREEN)
+            return .init(origin: a, points: [a, b], debugRenderColor: DebugColors.INDIGO)
+        }
+    }
+    
+    private var DEBUG_BORDER_CONTOURS: ContoursInstructions {
+        get {
+            
+            let ((minX, minY), (maxX, maxY)) = getContoursBoundaries(contours: glyph.contours)
+            
+            let tl: CGPoint = .init(x: toScale(minX), y: toScale(minY))
+            let tr: CGPoint = .init(x: toScale(maxX), y: toScale(minY))
+            let br: CGPoint = .init(x: toScale(maxX), y: toScale(maxY))
+            let bl: CGPoint = .init(x: toScale(minX), y: toScale(maxY))
+            return .init(origin: tl, points: [tl, tr, br, bl, tl], debugRenderColor: DebugColors.PINK)
         }
     }
     
@@ -104,6 +172,10 @@ class FontGlyphContours {
             
             if debugInstructions.contains(.Baseline) {
                 instructions.append(DEBUG_BASELINE_CONTOURS)
+            }
+            
+            if debugInstructions.contains(.Borders) {
+                instructions.append(DEBUG_BORDER_CONTOURS)
             }
             
             

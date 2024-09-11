@@ -8,48 +8,45 @@
 import Foundation
 import SwiftUI
 
+struct DebugToggleButton: View {
+    let target: DebugLevel
+    @Binding var debugLevels: [DebugLevel]
+    let icon: String
+    let help: String
+    @State var isOn: Bool = false
+    
+    var body: some View {
+        Toggle(isOn: $isOn){
+            Image(systemName: icon).foregroundColor(isOn ? .green : .primary)
+        }
+        .onChange(of: isOn) {
+            if !isOn {
+                debugLevels = debugLevels.filter{ e in e != target }
+            } else {
+                debugLevels.append(target)
+            }
+        }
+        .help(help)
+        .toggleStyle(.button)
+        
+    }
+}
+
 struct SharedDebugFontInputView : View {
+    @State var debugBorders: Bool = false
     @State var debugBaseline: Bool = false
     @State var debugContours: Bool = false
     @Binding var enabledDebugLevels: [DebugLevel]
-    
-    func toggleBaseline() {
-        if enabledDebugLevels.contains(.Baseline) {
-            enabledDebugLevels = enabledDebugLevels.filter{ e in e != .Baseline }
-        } else {
-            enabledDebugLevels.append(.Baseline)
-        }
-    }
     
     var body: some View {
         HStack {
             Spacer()
             HStack {
-                Toggle(isOn: $debugBaseline){
-                    Image(systemName: "underline")
+                ControlGroup {
+                    DebugToggleButton(target: .Baseline, debugLevels: $enabledDebugLevels, icon: "underline", help: "Debug Glyph baseline")
+                    DebugToggleButton(target: .Contours, debugLevels: $enabledDebugLevels, icon: "skew", help: "Debug Glyph contours")
+                    DebugToggleButton(target: .Borders, debugLevels: $enabledDebugLevels, icon: "squareshape.squareshape.dotted", help: "Debug Glyph border")
                 }
-                .onChange(of: debugBaseline) {
-                    if !debugBaseline {
-                        enabledDebugLevels = enabledDebugLevels.filter{ e in e != .Baseline }
-                    } else {
-                        enabledDebugLevels.append(.Baseline)
-                    }
-                }
-                .help("Debug Glyph contours")
-                .toggleStyle(.button)
-                
-                Toggle(isOn: $debugContours){
-                    Image(systemName: "skew")
-                }
-                .onChange(of: debugContours) {
-                    if !debugContours {
-                        enabledDebugLevels = enabledDebugLevels.filter{ e in e != .Contours }
-                    } else {
-                        enabledDebugLevels.append(.Contours)
-                    }
-                }
-                .help("Debug Glyph baseline")
-                .toggleStyle(.button)
             }
         }
     }

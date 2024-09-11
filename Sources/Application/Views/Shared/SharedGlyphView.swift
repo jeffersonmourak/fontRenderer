@@ -38,7 +38,7 @@ struct SharedGlyphView: View {
     var scale: Double = 1
     var fontHeight: Double
     var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
-    @State var debugLevels: [DebugLevel]
+    @Binding var debugLevels: [DebugLevel]
     
     var path = Path()
     
@@ -74,6 +74,10 @@ struct SharedGlyphView: View {
             .orange
         case .GRAY :
             .gray
+        case .PINK :
+            .pink
+        case .INDIGO:
+            .indigo
         }
     }
     
@@ -88,8 +92,6 @@ struct SharedGlyphView: View {
                 
                 context.stroke(path, with: .color(getContourColor(contour.debugRenderColor)), lineWidth: renderOptions.glyph.width)
             }
-            
-            print("JEFF HERE!!", debugLevels)
         }.frame(width: fontGlyph.width, height: fontGlyph.height)
     }
 }

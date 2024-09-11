@@ -85,9 +85,9 @@ struct ContentView : View {
         case let .loaded(loader):
             switch currentView {
             case .type:
-                FontRenderView(loader, debugLevels: enabledDebugLevels)
+                FontRenderView(loader: loader, debugLevels: $enabledDebugLevels)
             case .all:
-                FontRenderAllView(loader, debugLevels: enabledDebugLevels)
+                FontRenderAllView(loader: loader, debugLevels: $enabledDebugLevels)
             }
         case .loading:
             Text("Loaded!")
