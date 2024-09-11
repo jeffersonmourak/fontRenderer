@@ -13,9 +13,11 @@ struct GlyphRowView: View {
     var fontRenderScale = 0.3
     var fontHeight: Double = 800
     @State var glyph: Glyph
+    @State var debugLevels: [DebugLevel]
     
     
-    init(_ loader: FontLoader, _ offset: Int) {
+    init(_ loader: FontLoader, _ offset: Int, debugLevels: [DebugLevel] = []) {
+        self.debugLevels = debugLevels
         do {
             glyph = try loader.getGlyphContours(at: offset)
         } catch {
@@ -31,7 +33,8 @@ struct GlyphRowView: View {
             renderOptions: .create(
                 usingGlyph: .init(color: .white, width: 2),
                 usingOutline: .init(color: .white, width: 1)    
-            )
+            ),
+            debugLevels: debugLevels
         )
     }
 }

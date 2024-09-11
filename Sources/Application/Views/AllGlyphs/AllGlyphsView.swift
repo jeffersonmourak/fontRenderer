@@ -19,41 +19,27 @@ struct GlyphRow: Identifiable {
 
 
 struct FontRenderAllView : View {
+    @State var debugLevels: [DebugLevel]
     var loader: FontLoader
-
-    var rows: [GlyphRow] = []
     var rowCount = 3
     
-    
-    init(_ loader: FontLoader) {
+    init(_ loader: FontLoader, debugLevels: [DebugLevel] = []) {
         self.loader = loader
-        
-        let glyphRows: [GlyphRow] = []
-        
-        //        for i in stride(from: 0, to: Int(loader.memoryInfo.numGlyphs - 1), by: rowCount){
-        
-        //
-
-        //
-        //            glyphRows.append(.init(items: row))
-        //        }
-        
-        rows = glyphRows
+        self.debugLevels = debugLevels
     }
     
     func toIndex(_ base: Int, offset: Int = 0) -> Int {
         return (base * rowCount) + offset
     }
     
-    
     var body: some View {
         ScrollView{
             LazyVStack {
                 ForEach(0..<Int(loader.memoryInfo.numGlyphs) / rowCount, id: \.self) { index in
                     HStack {
-                        GlyphRowView(loader, toIndex(index, offset: 0))
-                        GlyphRowView(loader, toIndex(index, offset: 1))
-                        GlyphRowView(loader, toIndex(index, offset: 2))
+                        GlyphRowView(loader, toIndex(index, offset: 0), debugLevels: debugLevels)
+                        GlyphRowView(loader, toIndex(index, offset: 1), debugLevels: debugLevels)
+                        GlyphRowView(loader, toIndex(index, offset: 2), debugLevels: debugLevels)
                     }
                 }
             }

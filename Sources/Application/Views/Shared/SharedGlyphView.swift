@@ -29,21 +29,18 @@ struct RenderGlyphOptions {
     }
 }
 
+//        let capH = (upm - (ascender - lineGap)) * scale
+//        let baseL = ((upm - ascender) + lineGap + sCapHeight) * scale
+//        let des = (descender / upm)
+
 struct SharedGlyphView: View {
     var glyph: Glyph
     var scale: Double = 1
     var fontHeight: Double
     var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
+    @State var debugLevels: [DebugLevel]
     
     var path = Path()
-    
-    func toScale<T: BinaryInteger>(_ value: T) -> CGFloat {
-        return CGFloat(Int((CGFloat(value) * CGFloat(scale)) * 1000) / 1000)
-    }
-    
-    func toScale(_ value: CGFloat) -> CGFloat {
-        return CGFloat((value * CGFloat(scale)) * 1000 / 1000)
-    }
     
     let colors: [Color] = [
         .red,
@@ -57,44 +54,42 @@ struct SharedGlyphView: View {
         .gray,
     ]
     
-    
+    func getContourColor(_ input: DebugColors) -> Color {
+        switch input {
+        case .RED :
+            .red
+        case .GREEN :
+            .green
+        case .BLUE :
+            .blue
+        case .YELLOW :
+            .yellow
+        case .PURPLE :
+            .purple
+        case .BROWN :
+            .brown
+        case .CYAN :
+            .cyan
+        case .ORANGE :
+            .orange
+        case .GRAY :
+            .gray
+        }
+    }
     
     var body: some View {
-        let width = CGFloat(glyph.glyphBox.xMax)
-        
+        let fontGlyph = FontGlyphContours(from: glyph, scale: scale, debug: debugLevels)
         Canvas { context, size in
-            // @TODO: Find what to do with SafeCanvas
-            //let _ = SafeCanvas(withBoundary: .init(a: minPoints, b:maxPoints))
-            
             var path = Path()
-            path.addLines([
-                .init(x: 0, y: 0),
-                .init(x: size.width, y: .zero),
-                .init(x: size.width, y: size.height),
-                .init(x: .zero, y: size.height),
-                .init(x: 0, y: 0)
-            ]
-            )
-            context.stroke(path, with: .color(renderOptions.outline.color), lineWidth: renderOptions.outline.width)
-            
-            for glyphContours in glyph.contours {
-                let coords = glyphContours.map {
-                    let newY = ((glyph.maxPoints.y * 0.7) - $0.y) - Double(glyph.baseLineDistance)
-                    let newX = $0.x
-                    
-                    return CGPoint(x: toScale(newX), y: toScale(newY))
-                }
-                
-                if coords.count == 0 {
-                    return;
-                }
-                
+            for contour in fontGlyph.contours {
                 path = Path()
-                path.move(to: coords[0])
-                path.addLines(coords)
-                context.stroke(path, with: .color(renderOptions.glyph.color), lineWidth: renderOptions.glyph.width)
+                path.move(to: contour.origin)
+                path.addLines(contour.points)
+                
+                context.stroke(path, with: .color(getContourColor(contour.debugRenderColor)), lineWidth: renderOptions.glyph.width)
             }
             
-        }.frame(width: toScale(width), height: toScale(glyph.maxPoints.y * 0.7))
+            print("JEFF HERE!!", debugLevels)
+        }.frame(width: fontGlyph.width, height: fontGlyph.height)
     }
 }

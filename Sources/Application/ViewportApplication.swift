@@ -44,7 +44,7 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
     override init() {
         let window = NSWindow(contentRect: NSMakeRect(0, 0, CGFloat(windowSize.value.width), CGFloat(windowSize.value.height)), styleMask: [NSWindow.StyleMask.titled, NSWindow.StyleMask.closable, NSWindow.StyleMask.miniaturizable, NSWindow.StyleMask.resizable], backing: .buffered, defer: false)
         window.center()
-        window.title = "Font Renderer"
+        window.title = Constants.productName
         self.window = window
         super.init()
         let application = NSApplication.shared

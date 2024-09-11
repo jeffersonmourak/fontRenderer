@@ -34,9 +34,12 @@ struct FontRenderView : View {
     @State var fontHeight: Double = 730
     @State var inputText: String = ""
     @State var showDefaultGlyph: Bool = false
+    @State var debugLevels: [DebugLevel]
     
-    init(_ loader: FontLoader) {
+    init(_ loader: FontLoader, debugLevels: [DebugLevel] = []) {
         self.loader = loader
+        self.debugLevels = debugLevels
+        
         currentGlyph = .missing
     }
     
@@ -44,11 +47,11 @@ struct FontRenderView : View {
     func RenderGlyph(withType type: GlyphRenderType) -> some View {
         switch type {
         case .space:
-            Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: fontHeight * fontRenderScale)
+            Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: CGFloat(loader.fontInfo.unitsPerEm) * fontRenderScale)
         case let .character(char):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: debugLevels)
         case let .glyph(index):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight)
+            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: debugLevels)
         }
     }
     
@@ -115,11 +118,13 @@ struct FontRenderView : View {
                 Image(systemName: "textformat.size")
                 Slider(
                     value: $fontRenderScale,
-                    in: 0.1...1
+                    in: 0.1...3
                 )
                 .help("Font render scale")
                 .disabled(!showDefaultGlyph && inputText.count == 0)
                 .frame(minWidth: 200, maxWidth: 400)
+                Text("\(String(format: "%.2f", fontRenderScale)) em")
+                Spacer()
             }
         })
     }

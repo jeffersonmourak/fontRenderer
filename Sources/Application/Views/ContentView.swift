@@ -63,6 +63,7 @@ enum FontViews: String {
 
 struct ContentView : View {
     @State private var fontPath: String
+    @State private var enabledDebugLevels: [DebugLevel] = []
     @State private var contentState: ViewState
     @State private var currentView: FontViews = .type
     
@@ -84,9 +85,9 @@ struct ContentView : View {
         case let .loaded(loader):
             switch currentView {
             case .type:
-                FontRenderView(loader)
+                FontRenderView(loader, debugLevels: enabledDebugLevels)
             case .all:
-                FontRenderAllView(loader)
+                FontRenderAllView(loader, debugLevels: enabledDebugLevels)
             }
         case .loading:
             Text("Loaded!")
@@ -109,12 +110,17 @@ struct ContentView : View {
             LoadFontView(for: contentState)
         }.toolbar {
             ToolbarItemGroup {
-                SharedFontInputView(fontPath: $fontPath).onChange(of: fontPath) {
-                    do {
-                        let font = try loadFont(fontPath)
-                        self.contentState = .loaded(font)
-                    } catch {
-                        self.contentState = .error(error.localizedDescription)
+                HStack {
+                    SharedDebugFontInputView(enabledDebugLevels: $enabledDebugLevels).onChange(of: enabledDebugLevels) {
+                        self.enabledDebugLevels = enabledDebugLevels
+                    }
+                    SharedFontInputView(fontPath: $fontPath).onChange(of: fontPath) {
+                        do {
+                            let font = try loadFont(fontPath)
+                            self.contentState = .loaded(font)
+                        } catch {
+                            self.contentState = .error(error.localizedDescription)
+                        }
                     }
                 }
             }
