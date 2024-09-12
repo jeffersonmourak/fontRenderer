@@ -39,6 +39,8 @@ struct SharedGlyphView: View {
     var fontHeight: Double
     var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
     @Binding var debugLevels: [DebugLevel]
+    @State var contourLayer: Int = 0
+    @State var amounts: [Double] = []
     
     var path = Path()
     
@@ -83,15 +85,127 @@ struct SharedGlyphView: View {
     
     var body: some View {
         let fontGlyph = FontGlyphContours(from: glyph, scale: scale, debug: debugLevels)
-        Canvas { context, size in
-            var path = Path()
-            for contour in fontGlyph.contours {
-                path = Path()
-                path.move(to: contour.origin)
-                path.addLines(contour.points)
-                
-                context.stroke(path, with: .color(getContourColor(contour.debugRenderColor)), lineWidth: renderOptions.glyph.width)
+        
+        let computedAmounts = Binding<[Double]>(get: {
+            
+            if !debugLevels.contains(.SteppedPoints) {
+                return fontGlyph.layers[0].map { c in
+                    return Double(c.points.count)
+                }
             }
-        }.frame(width: fontGlyph.width, height: fontGlyph.height)
+            
+            if amounts.count == 0 {
+                let localAmounts = fontGlyph.mainRenderLayer.map { c in
+//                    return Double(c.points.count)
+                    return 0.0
+                }
+                
+                amounts = localAmounts
+                return localAmounts
+            }
+            
+            return amounts
+        }, set: { val in
+            amounts = val
+        })
+        
+        VStack {
+            Canvas { context, size in
+                var path = Path()
+                for i in 0..<fontGlyph.mainRenderLayer.count {
+                    let contour = fontGlyph.mainRenderLayer[i]
+                    
+                    breakdownBezierSegments(from: contour)
+                    
+                    path = Path()
+                    path.move(to: contour.origin.cgPoint())
+                    
+                    var points: [CGPoint] = []
+                    
+                    if contour.renderLayer == .Debug {
+                        points = contour.points.asCGPointArray()
+                    } else {
+                        points.append(contentsOf: contour.points.asCGPointArray()[0..<Int(computedAmounts[i].wrappedValue)])
+                    }
+                    
+                    path.addLines(points)
+                    
+                    context.stroke(
+                        path,
+                        with: .color(getContourColor(contour.debugRenderOptions.color)),
+                        style: contour.debugRenderOptions.asStrokeStyle()
+                    )
+                }
+                
+                for i in 0..<fontGlyph.debugLayer.count {
+                    let contour = fontGlyph.debugLayer[i]
+                    
+                    path = Path()
+                    path.move(to: contour.origin.cgPoint())
+                    
+                    var points: [CGPoint] = []
+                    
+                    if contour.renderLayer == .Debug {
+                        points = contour.points.asCGPointArray()
+                    } else {
+                        points.append(contentsOf: contour.points.asCGPointArray()[0..<Int(computedAmounts[i].wrappedValue)])
+                    }
+                    
+                    path.addLines(points)
+                    
+                    context.stroke(
+                        path,
+                        with: .color(getContourColor(contour.debugRenderOptions.color)),
+                        style: contour.debugRenderOptions.asStrokeStyle()
+                    )
+                }
+            }.frame(width: fontGlyph.width, height: fontGlyph.height)
+            
+            if debugLevels.contains(.SteppedPoints) {
+                VStack {
+                    Stepper("Contour #\(contourLayer + 1)", value: $contourLayer, in: 0...fontGlyph.mainRenderLayer.count - 1)
+                    Slider(
+                        value: computedAmounts[contourLayer],
+                        in: 0...Double(fontGlyph.mainRenderLayer[contourLayer].points.count),
+                        step: 1
+                    )
+                }
+            }
+        }
     }
+}
+
+func breakdownBezierSegments(from contour: ContoursInstructions) {
+//    print(contour.points)
+    
+    var firstOnCurvePointIndex: Int = 0
+    
+    for i in 0..<contour.points.count {
+        if contour.points[i].onCurve {
+            firstOnCurvePointIndex = i
+        }
+    }
+    
+    var segments: [[ContourPoint]] = []
+    var currentSegment: [ContourPoint] = [contour.points[firstOnCurvePointIndex]]
+    
+//    print("#######")
+    
+    for i in 0..<contour.points.count {
+        let curr = contour.points[(i + firstOnCurvePointIndex + 0) % contour.points.count]
+        let next = contour.points[(i + firstOnCurvePointIndex + 1) % contour.points.count]
+        
+        if curr.onCurve && next.onCurve {
+            currentSegment.append(next)
+            segments.append(currentSegment)
+            currentSegment = []
+        }
+        
+//        print(curr, next, currentSegment)
+        
+//        print(">>>>>")
+    }
+    
+//    print("################ >>>>>>>>>>>>> ########")
+//    print(segments)
 }

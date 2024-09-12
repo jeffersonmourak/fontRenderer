@@ -46,6 +46,9 @@ struct SharedDebugFontInputView : View {
                     DebugToggleButton(target: .Baseline, debugLevels: $enabledDebugLevels, icon: "underline", help: "Debug Glyph baseline")
                     DebugToggleButton(target: .Contours, debugLevels: $enabledDebugLevels, icon: "skew", help: "Debug Glyph contours")
                     DebugToggleButton(target: .Borders, debugLevels: $enabledDebugLevels, icon: "squareshape.squareshape.dotted", help: "Debug Glyph border")
+                    DebugToggleButton(target: .Points, debugLevels: $enabledDebugLevels, icon: "point.3.filled.connected.trianglepath.dotted", help: "Debug Glyph Points")
+                    DebugToggleButton(target: .ImpliedPoints, debugLevels: $enabledDebugLevels, icon: "point.3.connected.trianglepath.dotted", help: "Debug Glyph Implied Points")
+                    DebugToggleButton(target: .SteppedPoints, debugLevels: $enabledDebugLevels, icon: "scope", help: "Step over points")
                 }
             }
         }

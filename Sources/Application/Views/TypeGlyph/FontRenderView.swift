@@ -116,7 +116,7 @@ struct FontRenderView : View {
                 )
                 .help("Font render scale")
                 .disabled(!showDefaultGlyph && inputText.count == 0)
-                .frame(minWidth: 200, maxWidth: 400)
+                .frame(minWidth: 150, maxWidth: 340)
                 Text("\(String(format: "%.2f", fontRenderScale)) em")
                 Spacer()
             }
