@@ -15,28 +15,58 @@ struct SharedVirtualScrollView<Content: View>: View {
     var alignment: Alignment = .topLeading
     var width: CGFloat? = nil
     var height: CGFloat? = nil
-    @ViewBuilder var content: (CGRect) -> Content
+    @ViewBuilder var content: (
+        CGRect
+    ) -> Content
     
     var body: some View {
         GeometryReader { outerGeometry in
-            ScrollView(axes, showsIndicators: showsIndicators) {
+            ScrollView(
+                axes,
+                showsIndicators: showsIndicators
+            ) {
                 GeometryReader { innerGeometry in
                     let origin = innerGeometry
-                        .frame(in: .named("outer"))
+                        .frame(
+                            in: .named(
+                                "outer"
+                            )
+                        )
                         .origin
-                        .applying(ProjectionTransform(.init(scaleX: -1, y: -1)))
+                        .applying(
+                            ProjectionTransform(
+                                .init(
+                                    scaleX: -1,
+                                    y: -1
+                                )
+                            )
+                        )
                     ZStack {
-                        content(CGRect(
-                            origin: origin,
-                            size: outerGeometry.size
-                        ))
+                        content(
+                            CGRect(
+                                origin: origin,
+                                size: outerGeometry.size
+                            )
+                        )
                     }
-                    .frame(width: outerGeometry.size.width, height: outerGeometry.size.height, alignment: alignment)
-                    .offset(x: origin.x, y: origin.y)
+                    .frame(
+                        width: outerGeometry.size.width,
+                        height: outerGeometry.size.height,
+                        alignment: alignment
+                    )
+                    .offset(
+                        x: origin.x,
+                        y: origin.y
+                    )
                 }
-                .frame(width: width, height: height)
+                .frame(
+                    width: width,
+                    height: height
+                )
             }
-            .coordinateSpace(name: "outer")
+            .coordinateSpace(
+                name: "outer"
+            )
         }
     }
 }

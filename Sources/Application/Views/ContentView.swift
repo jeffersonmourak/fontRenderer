@@ -13,7 +13,9 @@ import FontLoader
 struct FontValidationError: LocalizedError {
     let description: String
     
-    init (_ description: String) {
+    init (
+        _ description: String
+    ) {
         self.description = description
     }
     
@@ -24,15 +26,25 @@ struct FontValidationError: LocalizedError {
 
 enum ViewState {
     case loading
-    case loaded(FontLoader)
-    case error(String)
+    case loaded(
+        FontLoader
+    )
+    case error(
+        String
+    )
 }
 
-func readFile(fromPath path: String) -> Data? {
-    let fileURL = URL(fileURLWithPath: path)
+func readFile(
+    fromPath path: String
+) -> Data? {
+    let fileURL = URL(
+        fileURLWithPath: path
+    )
     
     do {
-        let data = try Data(contentsOf: fileURL)
+        let data = try Data(
+            contentsOf: fileURL
+        )
         return data
     } catch {
         //        print("Error reading data: \(error)")
@@ -40,17 +52,27 @@ func readFile(fromPath path: String) -> Data? {
     }
 }
 
-func loadFont(_ path: String) throws -> FontLoader {
+func loadFont(
+    _ path: String
+) throws -> FontLoader {
     guard path != "" else {
-        throw FontValidationError("No font file provided")
+        throw FontValidationError(
+            "No font file provided"
+        )
     }
     
-    guard let fontData = readFile(fromPath: path) else {
-        throw FontValidationError("File not found")
+    guard let fontData = readFile(
+        fromPath: path
+    ) else {
+        throw FontValidationError(
+            "File not found"
+        )
     }
     
     do {
-        return try FontLoader(withData: fontData)
+        return try FontLoader(
+            withData: fontData
+        )
     } catch {
         throw error
     }
@@ -63,64 +85,123 @@ enum FontViews: String {
 
 struct ContentView : View {
     @State private var fontPath: String
-    @State private var enabledDebugLevels: [DebugLevel] = []
+    @State private var enabledDebugLevels: [DEBUG__FrOverlayOptions] = []
     @State private var contentState: ViewState
     @State private var currentView: FontViews = .type
     
-    init(_ initialPath: String = "") {
+    init(
+        _ initialPath: String = ""
+    ) {
         fontPath = initialPath
         do {
-            let font = try loadFont(initialPath)
-            self.contentState = .loaded(font)
+            let font = try loadFont(
+                initialPath
+            )
+            self.contentState = .loaded(
+                font
+            )
         } catch {
-            self.contentState = .error(error.localizedDescription)
+            self.contentState = .error(
+                error.localizedDescription
+            )
         }
     }
     
     @ViewBuilder
-    func LoadFontView(for state: ViewState) -> some View {
+    func LoadFontView(
+        for state: ViewState
+    ) -> some View {
         switch state {
-        case let .error(message):
-            Text(message)
-        case let .loaded(loader):
+        case let .error(
+            message
+        ):
+            Text(
+                message
+            )
+        case let .loaded(
+            loader
+        ):
             switch currentView {
             case .type:
-                FontRenderView(loader: loader, debugLevels: $enabledDebugLevels)
+                FontRenderView(
+                    loader: loader,
+                    debugLevels: $enabledDebugLevels
+                )
             case .all:
-                FontRenderAllView(loader: loader, debugLevels: $enabledDebugLevels)
+                FontRenderAllView(
+                    loader: loader,
+                    debugLevels: $enabledDebugLevels
+                )
             }
         case .loading:
-            Text("Loaded!")
+            Text(
+                "Loaded!"
+            )
         }
     }
     
     var body: some View {
         NavigationSplitView{
-            List(selection: $currentView) {
-                NavigationLink(value: FontViews.type) {
-                    Label("Type Text", systemImage: "text.quote")
+            List(
+                selection: $currentView
+            ) {
+                NavigationLink(
+                    value: FontViews.type
+                ) {
+                    Label(
+                        "Type Text",
+                        systemImage: "text.quote"
+                    )
                 }
-                NavigationLink(value: FontViews.all) {
-                    Label("All Glyphs", systemImage: "square.grid.3x2")
+                NavigationLink(
+                    value: FontViews.all
+                ) {
+                    Label(
+                        "All Glyphs",
+                        systemImage: "square.grid.3x2"
+                    )
                 }
-            }.toolbar(removing: .sidebarToggle)
+            }.toolbar(
+                removing: .sidebarToggle
+            )
             
             
         } detail: {
-            LoadFontView(for: contentState)
+            LoadFontView(
+                for: contentState
+            )
         }.toolbar {
-            ToolbarItemGroup {
-                HStack {
-                    SharedDebugFontInputView(enabledDebugLevels: $enabledDebugLevels).onChange(of: enabledDebugLevels) {
-                        self.enabledDebugLevels = enabledDebugLevels
-                    }
-                    SharedFontInputView(fontPath: $fontPath).onChange(of: fontPath) {
-                        do {
-                            let font = try loadFont(fontPath)
-                            self.contentState = .loaded(font)
-                        } catch {
-                            self.contentState = .error(error.localizedDescription)
-                        }
+            ToolbarItemGroup(
+                placement: .status
+            ) {
+                SharedDebugFontInputView(
+                    enabledDebugLevels: $enabledDebugLevels
+                ).onChange(
+                    of: enabledDebugLevels
+                ) {
+                    self.enabledDebugLevels = enabledDebugLevels
+                }
+            }
+        }.toolbar {
+            ToolbarItemGroup(
+                placement: .navigation
+            ) {
+                SharedFontInputView(
+                    fontPath: $fontPath
+                ).onChange(
+                    of: fontPath
+                ) {
+                    do {
+                        let font = try loadFont(
+                            fontPath
+                        )
+                        self.contentState = .loaded(
+                            font
+                        )
+                    } catch {
+                        self.contentState = .error(
+                            error.localizedDescription
+                        )
                     }
                 }
             }
@@ -143,13 +224,21 @@ extension NSOpenPanel {
 
 
 extension ViewState {
-    func isState(_ name: String) -> Bool {
-        switch (self) {
+    func isState(
+        _ name: String
+    ) -> Bool {
+        switch (
+            self
+        ) {
         case .loading:
             return name == "loading"
-        case .error(_):
+        case .error(
+            _
+        ):
             return name == "error"
-        case .loaded(_):
+        case .loaded(
+            _
+        ):
             return name == "loaded"
         }
     }

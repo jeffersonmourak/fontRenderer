@@ -34,7 +34,7 @@ struct FontRenderView : View {
     @State var fontHeight: Double = 730
     @State var inputText: String = ""
     @State var showDefaultGlyph: Bool = false
-    @Binding var debugLevels: [DebugLevel]
+    @Binding var debugLevels: [DEBUG__FrOverlayOptions]
     
 
     @ViewBuilder
@@ -99,27 +99,34 @@ struct FontRenderView : View {
                 
             }
             .padding()
-        }.toolbar(content: {
-            ToolbarItemGroup(placement: .principal) {
-                HStack {
-                    Toggle(isOn: $showDefaultGlyph){
-                        Image(systemName: showDefaultGlyph ? "eye" : "eye.slash")
+        }.toolbar {
+            ToolbarItemGroup(placement: .automatic) {
+                HStack{
+                    Divider()
+                    HStack {
+                        Toggle(isOn: $showDefaultGlyph){
+                            Image(systemName: showDefaultGlyph ? "eye" : "eye.slash")
+                        }
+                        .help("Toggle display default glyph")
+                        .toggleStyle(.button)
                     }
-                    .help("Toggle display default glyph")
-                    .toggleStyle(.button)
+                    Image(systemName: "textformat.size")
+                    Picker("Font scale", selection: $fontRenderScale) {
+                        Text("0.0075 em").tag(0.0075)
+                        Text("0.025 em").tag(0.025)
+                        Text("0.05 em").tag(0.05)
+                        Text("0.1 em").tag(0.1)
+                        Text("0.30 em").tag(0.3)
+                        Text("0.75 em").tag(0.75)
+                        Text("1 em").tag(1)
+                        Text("1.30 em").tag(1.3)
+                        Text("1.75 em").tag(1.75)
+                        Text("2 em").tag(2)
+                        Text("2.30 em").tag(2.3)
+                        Text("2.75 em").tag(2.75)
+                    }
                 }
-                Spacer()
-                Image(systemName: "textformat.size")
-                Slider(
-                    value: $fontRenderScale,
-                    in: 0.1...3
-                )
-                .help("Font render scale")
-                .disabled(!showDefaultGlyph && inputText.count == 0)
-                .frame(minWidth: 150, maxWidth: 340)
-                Text("\(String(format: "%.2f", fontRenderScale)) em")
-                Spacer()
             }
-        })
+        }
     }
 }

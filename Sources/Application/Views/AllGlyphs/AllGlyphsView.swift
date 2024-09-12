@@ -20,21 +20,52 @@ struct GlyphRow: Identifiable {
 
 struct FontRenderAllView : View {
     var loader: FontLoader
-    @Binding var debugLevels: [DebugLevel]
+    @Binding var debugLevels: [DEBUG__FrOverlayOptions]
     var rowCount = 3
         
-    func toIndex(_ base: Int, offset: Int = 0) -> Int {
-        return (base * rowCount) + offset
+    func toIndex(
+        _ base: Int,
+        offset: Int = 0
+    ) -> Int {
+        return (
+            base * rowCount
+        ) + offset
     }
     
     var body: some View {
         ScrollView{
             LazyVStack {
-                ForEach(0..<Int(loader.memoryInfo.numGlyphs) / rowCount, id: \.self) { index in
+                ForEach(
+                    0..<Int(
+                        loader.memoryInfo.numGlyphs
+                    ) / rowCount,
+                    id: \.self
+                ) { index in
                     HStack {
-                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 0), debugLevels: $debugLevels)
-                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 1), debugLevels: $debugLevels)
-                        GlyphRowView(loader: loader, offset: toIndex(index, offset: 2), debugLevels: $debugLevels)
+                        GlyphRowView(
+                            loader: loader,
+                            offset: toIndex(
+                                index,
+                                offset: 0
+                            ),
+                            debugLevels: $debugLevels
+                        )
+                        GlyphRowView(
+                            loader: loader,
+                            offset: toIndex(
+                                index,
+                                offset: 1
+                            ),
+                            debugLevels: $debugLevels
+                        )
+                        GlyphRowView(
+                            loader: loader,
+                            offset: toIndex(
+                                index,
+                                offset: 2
+                            ),
+                            debugLevels: $debugLevels
+                        )
                     }
                 }
             }
