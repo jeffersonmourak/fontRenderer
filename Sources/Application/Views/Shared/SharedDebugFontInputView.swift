@@ -25,35 +25,19 @@ struct DebugToggleButton: View {
             return isOn ? icon : offIcon!
         },set: { _ in })
         
-        Toggle(
-            isOn: $isOn
-        ){
-            Image(
-                systemName: currentIcon.wrappedValue
-            ).foregroundColor(
-                isOn ? .green : .primary
-            )
+        Toggle(isOn: $isOn){
+            Image(systemName: currentIcon.wrappedValue)
+                .foregroundColor(isOn ? .green : .primary)
         }
-        .onChange(
-            of: isOn
-        ) {
+        .onChange(of: isOn) {
             if !isOn {
-                debugLevels = debugLevels.filter{
-                    e in e != target
-                }
+                debugLevels = debugLevels.filter { e in e != target }
             } else {
-                debugLevels.append(
-                    target
-                )
+                debugLevels.append(target)
             }
         }
-        .help(
-            help
-        )
-        .toggleStyle(
-            .button
-        )
-        
+        .help(help)
+        .toggleStyle(.button)
     }
 }
 
@@ -74,29 +58,21 @@ struct DebugButton: View {
     
     var body: some View {
         Button(action: action) {
-            Image(
-                systemName: icon
-            ).foregroundColor(
-                .primary
-            )
+            Image(systemName: icon)
+            .foregroundColor(.primary)
         }
-        .help(
-            help
-        )
-        .toggleStyle(
-            .button
-        )
+        .help(help)
+        .toggleStyle(.button)
         
     }
 }
 
 func isColorOverlay(option: DEBUG__FrOverlayOptions) -> Bool {
     switch option {
-    case .FontColorOverlay(_):
-        return true
-    
-    default:
-        return false
+        case .FontColorOverlay(_):
+            return true
+        default:
+            return false
     }
 }
 
@@ -105,10 +81,8 @@ func isColorOverlayEnabled(options: [DEBUG__FrOverlayOptions]) -> Bool {
         if (!isColorOverlay(option: option)) {
             continue
         }
-        
         return true
     }
-    
     return false
 }
 
@@ -171,9 +145,7 @@ struct SharedDebugFontInputView : View {
                             debugLevels: $enabledDebugLevels
                         )
                         if isColorOverlayEnabled(options: enabledDebugLevels) {
-                            ColorPicker(selection: $bgColor, label: {
-                                Text("asd")
-                            }).onChange(of: bgColor) {
+                            ColorPicker(selection: $bgColor, label: { Text("asd")}).onChange(of: bgColor) {
                                 if isColorOverlayEnabled(options: enabledDebugLevels) {
                                     var updatedRules = enabledDebugLevels.filter({ !isColorOverlay(option: $0) })
                                     updatedRules.append(.FontColorOverlay(color: bgColor))

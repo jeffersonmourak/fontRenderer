@@ -53,35 +53,16 @@ struct DEBUG__RenderOptions {
     
     public func DEBUG__setColor(
         _ color: DEBUG__FrStrokeColors
-    ) -> Self {
-        .init(
-            color: color,
-            width: width,
-            lineCap: lineCap,
-            lineJoin: lineJoin
-        )
-    }
+    ) -> Self { .init(color: color, width: width, lineCap: lineCap, lineJoin: lineJoin) }
     
     public func asStrokeStyle() -> StrokeStyle {
-        return StrokeStyle(
-            lineWidth: width,
-            lineCap: lineCap,
-            lineJoin: lineJoin
-        )
+        StrokeStyle(lineWidth: width, lineCap: lineCap, lineJoin: lineJoin)
     }
 }
 
-func getContourBoundary(
-    points: [GlyphPoint]
-) -> (
-    (
-        CGFloat,
-        CGFloat
-    ),
-    (
-        CGFloat,
-        CGFloat
-    )
+func getContourBoundary(points: [GlyphPoint]) -> (
+    (CGFloat, CGFloat),
+    (CGFloat, CGFloat)
 ) {
     var minX = points[0].x
     var maxX = points[0].x
@@ -89,131 +70,38 @@ func getContourBoundary(
     var maxY = points[0].y
     
     for point in points {
-        if point.x < minX {
-            minX = point.x
-        }
-        if (
-            point.x > maxX
-        ) {
-            maxX = point.x
-        }
+        if point.x < minX { minX = point.x }
+        if point.x > maxX { maxX = point.x }
         
-        if (
-            point.y < minY
-        ) {
-            minY = point.y
-        }
+        if point.y < minY { minY = point.y }
         
-        if (
-            point.y > maxY
-        ) {
-            maxY = point.y
-        }
+        if point.y > maxY { maxY = point.y }
     }
     
-    return (
-        (
-            minX,
-            minY
-        ),
-        (
-            maxX,
-            maxY
-        )
-    )
+    return ((minX, minY), (maxX, maxY))
 }
 
-func getContoursBoundaries(
-    contours: [[GlyphPoint]]
-) -> (
-    (
-        CGFloat,
-        CGFloat
-    ),
-    (
-        CGFloat,
-        CGFloat
-    )
-) {
-    var (
-        (
-            minX,
-            minY
-        ),
-        (
-            maxX,
-            maxY
-        )
-    ) = getContourBoundary(
-        points: contours[0]
-    )
+func getContoursBoundaries(contours: [[GlyphPoint]]) -> ((CGFloat, CGFloat), (CGFloat, CGFloat)) {
+    var ((minX, minY), (maxX, maxY)) = getContourBoundary(points: contours[0])
     
     for points in contours {
-        let (
-            (
-                cMinX,
-                cMinY
-            ),
-            (
-                cMaxX,
-                cMaxY
-            )
-        ) = getContourBoundary(
-            points: points
-        )
+        let ((cMinX, cMinY), (cMaxX, cMaxY)) = getContourBoundary(points: points)
         
-        if cMinX < minX {
-            minX = cMinX
-        }
-        if (
-            cMaxX > maxX
-        ) {
-            maxX = cMaxX
-        }
+        if cMinX < minX { minX = cMinX }
+        if cMaxX > maxX { maxX = cMaxX }
         
-        if (
-            cMinY < minY
-        ) {
-            maxY = cMinY
-        }
+        if cMinY < minY { maxY = cMinY }
         
-        if (
-            cMaxY > maxY
-        ) {
-            maxY = cMaxY
-        }
+        if cMaxY > maxY { maxY = cMaxY }
     }
     
-    return (
-        (
-            minX,
-            minY
-        ),
-        (
-            maxX,
-            maxY
-        )
-    )
+    return ((minX, minY), (maxX, maxY))
 }
 
 
-func DEBUG__getColor(
-    _ index: Int
-) -> DEBUG__FrStrokeColors {
-    let max = DEBUG__COLORS.count
-    
-    let normalIndex = (
-        index + max
-    ) % max
-    
-    return DEBUG__COLORS[normalIndex]
-}
+func DEBUG__getColor(_ index: Int) -> DEBUG__FrStrokeColors { DEBUG__COLORS[(index + DEBUG__COLORS.count) % DEBUG__COLORS.count] }
 
-func DEBUG__getPointColor(
-    _ point: GlyphPoint,
-    _ index: Int,
-    _ count: Int
-) -> DEBUG__FrStrokeColors {
+func DEBUG__getPointColor(_ point: GlyphPoint, _ index: Int, _ count: Int) -> DEBUG__FrStrokeColors {
     if count - 1 == index {
         return .PINK
     }
@@ -225,9 +113,7 @@ func DEBUG__getPointColor(
     return point.flag.onCurve ? .GREEN : .YELLOW
 }
 
-func DEBUG__toSUIColor(
-    _ input: DEBUG__FrStrokeColors
-) -> Color {
+func DEBUG__toSUIColor(_ input: DEBUG__FrStrokeColors) -> Color {
     switch input {
     case .RED :
             .red
@@ -255,86 +141,28 @@ func DEBUG__toSUIColor(
 }
 
 
-func DEBUG__BuildDebugLayer(
-    glyph: Glyph,
-    debugInstructions: [DEBUG__FrOverlayOptions],
-    mainLayer: FrRenderLayer
-) -> FrRenderLayer {
+func DEBUG__BuildDebugLayer(glyph: Glyph, debugInstructions: [DEBUG__FrOverlayOptions], mainLayer: FrRenderLayer) -> FrRenderLayer {
     
-    let mainDebugLayer = mainLayer.DEBUG__setLayerStrokeColor(
-        .PINK
-    )
+    let mainDebugLayer = mainLayer.DEBUG__setLayerStrokeColor(.PINK)
     
     var DEBUG_BASELINE_CONTOURS: FrContour {
         get {
-            let a: FrPoint = .init(
-                x: 0,
-                y: glyph.layout.height
-            )
-            let b: FrPoint = .init(
-                x: glyph.layout.width,
-                y: glyph.layout.height
-            )
-            return .init(
-                origin: a,
-                points: [
-                    a,
-                    b
-                ],
-                direction: .Clockwise,
-                DEBUG__renderOptions: .init(
-                    color: DEBUG__FrStrokeColors.INDIGO
-                )
-            )
+            let a: FrPoint = .init(x: 0, y: glyph.layout.height)
+            let b: FrPoint = .init(x: glyph.layout.width, y: glyph.layout.height)
+            return .init(origin: a, points: [a, b], direction: .Clockwise, DEBUG__renderOptions: .init(color: DEBUG__FrStrokeColors.INDIGO))
         }
     }
     
     var DEBUG_BORDER_CONTOURS: FrContour {
         get {
             
-            let (
-                (
-                    minX,
-                    minY
-                ),
-                (
-                    maxX,
-                    maxY
-                )
-            ) = getContoursBoundaries(
-                contours: glyph.contours
-            )
+            let ((minX, minY), (maxX, maxY)) = getContoursBoundaries(contours: glyph.contours)
             
-            let tl: FrPoint = .init(
-                x: minX,
-                y: minY
-            )
-            let tr: FrPoint = .init(
-                x: maxX,
-                y: minY
-            )
-            let br: FrPoint = .init(
-                x: maxX,
-                y: maxY
-            )
-            let bl: FrPoint = .init(
-                x: minX,
-                y: maxY
-            )
-            return .init(
-                origin: tl,
-                points: [
-                    tl,
-                    tr,
-                    br,
-                    bl,
-                    tl
-                ],
-                direction: .Clockwise,
-                DEBUG__renderOptions: .init(
-                    color: DEBUG__FrStrokeColors.PINK
-                )
-            )
+            let tl: FrPoint = .init(x: minX, y: minY)
+            let tr: FrPoint = .init(x: maxX, y: minY)
+            let br: FrPoint = .init(x: maxX, y: maxY)
+            let bl: FrPoint = .init(x: minX, y: maxY)
+            return .init(origin: tl, points: [tl, tr, br, bl, tl], direction: .Clockwise, DEBUG__renderOptions: .init(color: DEBUG__FrStrokeColors.PINK))
         }
     }
     
@@ -347,35 +175,18 @@ func DEBUG__BuildDebugLayer(
                     let point = contour[i]
                     let contourPoint = point.cGPoint()
                     let points: [FrPoint] = [
-                        .init(
-                            x: contourPoint.x,
-                            y: contourPoint.y
-                        ),
-                        .init(
-                            x: contourPoint.x,
-                            y: contourPoint.y
-                        )
+                        .init(x: contourPoint.x,y: contourPoint.y),
+                        .init(x: contourPoint.x,y: contourPoint.y)
                     ]
                     
-                    if point.isImplied{
-                        continue
-                    }
+                    if point.isImplied { continue }
                     
                     pointInstructions.append(
                         .init(
                             origin: points[0],
                             points: points,
                             direction: .Clockwise,
-                            DEBUG__renderOptions: .init(
-                                color: DEBUG__getPointColor(
-                                    point,
-                                    i,
-                                    contour.count
-                                ),
-                                width: 8,
-                                lineCap: .round,
-                                lineJoin: .round
-                            )
+                            DEBUG__renderOptions: .init(color: DEBUG__getPointColor(point, i, contour.count), width: 8, lineCap: .round, lineJoin: .round)
                         )
                     )
                 }
@@ -395,35 +206,18 @@ func DEBUG__BuildDebugLayer(
                     let point = contour[i]
                     let contourPoint = point.cGPoint()
                     let points: [FrPoint] = [
-                        .init(
-                            x: contourPoint.x,
-                            y: contourPoint.y
-                        ),
-                        .init(
-                            x: contourPoint.x,
-                            y: contourPoint.y
-                        )
+                        .init(x: contourPoint.x, y: contourPoint.y),
+                        .init(x: contourPoint.x, y: contourPoint.y)
                     ]
                     
-                    if !point.isImplied {
-                        continue
-                    }
+                    if !point.isImplied { continue }
                     
                     pointInstructions.append(
                         .init(
                             origin: points[0],
                             points: points,
                             direction: .Clockwise,
-                            DEBUG__renderOptions: .init(
-                                color: DEBUG__getPointColor(
-                                    point,
-                                    i,
-                                    contour.count
-                                ),
-                                width: 8,
-                                lineCap: .round,
-                                lineJoin: .round
-                            )
+                            DEBUG__renderOptions: .init(color: DEBUG__getPointColor(point, i, contour.count), width: 8, lineCap: .round, lineJoin: .round)
                         )
                     )
                 }
@@ -435,46 +229,25 @@ func DEBUG__BuildDebugLayer(
     
     var debugLayer: FrRenderLayer {
         get {
-            var instructions: [FrContour] = debugInstructions.contains(
-                .SteppedPointsOverlay
-            ) ? mainDebugLayer.contours : []
+            var instructions: [FrContour] = debugInstructions.contains(.SteppedPointsOverlay) ? mainDebugLayer.contours : []
             
-            if debugInstructions.contains(
-                .BaselineOverlay
-            ) {
-                instructions.append(
-                    DEBUG_BASELINE_CONTOURS
-                )
+            if debugInstructions.contains(.BaselineOverlay) {
+                instructions.append(DEBUG_BASELINE_CONTOURS)
             }
             
-            if debugInstructions.contains(
-                .RealPointsOverlay
-            ) {
-                instructions.append(
-                    contentsOf: DEBUG_CONTOURS_POINTS
-                )
+            if debugInstructions.contains(.RealPointsOverlay) {
+                instructions.append(contentsOf: DEBUG_CONTOURS_POINTS)
             }
             
-            if debugInstructions.contains(
-                .ImpliedPointsOverlay
-            ) {
-                instructions.append(
-                    contentsOf: DEBUG_CONTOURS_IMPLIED_POINTS
-                )
+            if debugInstructions.contains(.ImpliedPointsOverlay) {
+                instructions.append(contentsOf: DEBUG_CONTOURS_IMPLIED_POINTS)
             }
             
-            if debugInstructions.contains(
-                .BoundBoxOverlay
-            ) {
-                instructions.append(
-                    DEBUG_BORDER_CONTOURS
-                )
+            if debugInstructions.contains(.BoundBoxOverlay) {
+                instructions.append(DEBUG_BORDER_CONTOURS)
             }
             
-            return .init(
-                layerType: .Debug,
-                contours: instructions
-            )
+            return .init(layerType: .Debug, contours: instructions)
         }
     }
     

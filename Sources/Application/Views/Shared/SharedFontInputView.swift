@@ -12,21 +12,17 @@ struct SharedFontInputView : View {
     @Binding var fontPath: String
     
     func openDialog () {
-        if let url = NSOpenPanel().selectUrl {
-            fontPath = url.path
-            
-        }
+        if let url = NSOpenPanel().selectUrl { fontPath = url.path }
     }
     
     var body: some View {
-        let naviationTitle = Binding(get: {
-            return fontPath.components(
-                separatedBy: "/"
-            ).last ?? Constants.productName
-        },
-                                     set: { _ in
-            
-        })
+        let naviationTitle = Binding(
+            get: {
+                fontPath.components(separatedBy: "/").last ?? Constants.productName
+            },
+            set: { _ in }
+        )
+
         HStack {
             Spacer()
             Button(action: {

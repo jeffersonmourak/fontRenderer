@@ -76,9 +76,7 @@ struct FrGlyphView: View {
                     )
                     Slider(
                         value: computedAmounts[contourLayer],
-                        in: 0...Double(
-                            fontGlyph.mainLayer.contours[contourLayer].points.count
-                        ),
+                        in: 0...Double(fontGlyph.mainLayer.contours[contourLayer].points.count),
                         step: 1
                     )
                 }

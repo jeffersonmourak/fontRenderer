@@ -36,16 +36,7 @@ struct GlyphRowView: View {
             glyph: glyph,
             scale: fontRenderScale,
             fontHeight: fontHeight,
-            renderOptions: .create(
-                usingGlyph: .init(
-                    color: .white,
-                    width: 2
-                ),
-                usingOutline: .init(
-                    color: .white,
-                    width: 1
-                )    
-            ),
+            renderOptions: .create(usingGlyph: .init(color: .white, width: 2),usingOutline: .init(color: .white, width: 1)),
             debugLevels: $debugLevels
         )
     }
