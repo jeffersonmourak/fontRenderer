@@ -43,9 +43,9 @@ struct FontRenderView : View {
         case .space:
             Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: CGFloat(loader.fontInfo.unitsPerEm) * fontRenderScale)
         case let .character(char):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
+            FrGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
         case let .glyph(index):
-            SharedGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
+            FrGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
         }
     }
     

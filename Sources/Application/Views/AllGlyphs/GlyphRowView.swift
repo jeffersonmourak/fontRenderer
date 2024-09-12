@@ -32,7 +32,7 @@ struct GlyphRowView: View {
     var fontHeight: Double = 800
     
     var body: some View {
-        SharedGlyphView(
+        FrGlyphView(
             glyph: glyph,
             scale: fontRenderScale,
             fontHeight: fontHeight,

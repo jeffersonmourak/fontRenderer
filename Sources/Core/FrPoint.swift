@@ -69,110 +69,96 @@ fileprivate func isPointOnCurve(
     item.onCurve
 }
 
+let a = CGPoint(x: 0, y: 0)
+
+let k = FrPoint(from: a, onCurve: true)
+
 public struct FrPoint: Equatable {
     public let x: Double
     public let y: Double
     public var onCurve: Bool = false
     
+    init(x: Double, y: Double, onCurve: Bool = false) {
+        self.x = x
+        self.y = y
+        self.onCurve = onCurve
+    }
+    
+    init(from: CGPoint, onCurve: Bool) {
+        self.init(x: from.x, y: from.y, onCurve: onCurve)
+    }
+    
+    init(from: FrPoint, onCurve: Bool) {
+        self.init(x: from.x, y: from.y, onCurve: onCurve)
+    }
+    
+    init(from: FrPoint, x: Double) {
+        self.init(x: x, y: from.y, onCurve: from.onCurve)
+    }
+    
+    init(from: FrPoint, y: Double) {
+        self.init(x: from.x, y: y, onCurve: from.onCurve)
+    }
+    
+    init(from: FrPoint, x: Double, onCurve: Bool) {
+        self.init(x: x, y: from.y, onCurve: from.onCurve)
+    }
+    
+    init(from: FrPoint, y: Double, onCurve: Bool) {
+        self.init(x: from.x, y: y, onCurve: from.onCurve)
+    }
+    
+    init(from: FrPoint, x: Double, y: Double) {
+        self.init(x: x, y: y, onCurve: from.onCurve)
+    }
+    
+    init(from: FrPoint, x: Double, y: Double, onCurve: Bool) {
+        self.init(x: x, y: y, onCurve: onCurve)
+    }
+    
     // MARK: x & y aliases
-    public var width: Double {
-        get {
-            x
-        }
-    }
-    public var height: Double {
-        get {
-            y
-        }
-    }
+    public var width: Double { get { x } }
     
-    public var a: Double {
-        get {
-            x
-        }
-    }
-    public var b: Double {
-        get {
-            y
-        }
-    }
+    public var height: Double { get { y } }
     
-    public func cgPoint() -> CGPoint {
-        toCGPoint(
-            self
-        )
-    }
+    public var a: Double { get { x } }
     
-    public func cGFloatTuple() -> (CGFloat, CGFloat) {
-        (x, y)
-    }
+    public var b: Double { get { y } }
     
-    public func clean() -> Self {
-        clearPoint(
-            self
-        )
-    }
-    public func toScaled(
-        by scale: Double
-    ) -> Self {
-        scalePoint(
-            self,
-            by: scale
-        )
-    }
+    public func cgPoint() -> CGPoint { toCGPoint(self) }
     
-    public static func == (
-        lhs: Self,
-        rhs: Self
-    ) -> Bool {
-        areEqual(
-            lhs: lhs,
-            rhs: rhs
-        )
-    }
+    public func cGFloatTuple() -> (CGFloat, CGFloat) { (x, y) }
     
-    public static func filterOnCurve(
-        _ item: Self
-    ) -> Bool {
-        isPointOnCurve(
-            item
-        )
-    }
+    public func clean() -> Self { clearPoint(self) }
+    
+    public func toScaled(by scale: Double) -> Self { scalePoint(self, by: scale) }
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool { areEqual(lhs: lhs, rhs: rhs) }
+    
+    public static func filterOnCurve(_ item: Self) -> Bool { isPointOnCurve(item) }
 }
 
 
 extension Array where Element == FrPoint {
     func asCGPointArray() -> [CGPoint] {
-        self.map {
-            $0.cgPoint()
-        }
+        self.map { $0.cgPoint() }
     }
 }
 
 extension ArraySlice where Element == FrPoint {
     func asCGPointArray() -> [CGPoint] {
-        self.map {
-            $0.cgPoint()
-        }
+        self.map { $0.cgPoint() }
     }
     
     func asArray() -> [FrPoint] {
         var items: [FrPoint] = []
-        items.append(
-            contentsOf: self
-        )
+        items.append(contentsOf: self)
         return items
     }
 }
 
 extension Double {
-    public func toScaled(
-        by scale: Double
-    ) -> Self {
-        return Double(
-            (
-                self * scale
-            ) * 1000 / 1000
-        )
+    public func toScaled(by scale: Double) -> Self {
+        return (self * scale) * 1000 / 1000
     }
 }

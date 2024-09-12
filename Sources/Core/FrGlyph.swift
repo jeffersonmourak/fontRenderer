@@ -75,12 +75,8 @@ class FrGlyph {
     
     
     
-    private func getPointFoldingDirection(
-        _ points: [FrPoint]
-    ) -> FrContourDirection {
-        if points.count < 2 {
-            return .Clockwise
-        }
+    private func getPointFoldingDirection(_ points: [FrPoint]) -> FrContourDirection {
+        if points.count < 2 { return .Clockwise }
         
         for i in 0..<points.count {
             let a1 = points[(i + points.count) % points.count]
@@ -116,11 +112,9 @@ class FrGlyph {
                 return []
             }
             
-            let debugColor = DEBUG__overlayOptions.contains(
-                .ColorContoursOverlay
-            ) ? DEBUG__getColor(
-                i
-            ) : .GRAY
+            let debugColor = DEBUG__overlayOptions.contains(.ColorContoursOverlay) 
+                ? DEBUG__getColor(i)
+                : .GRAY
             
             mainContours.append(
                 .init(
@@ -138,9 +132,7 @@ class FrGlyph {
     }
     
     public var mainLayer: FrRenderLayer {
-        get {
-            .init(contours: buildMainRenderContours())
-        }
+        get { .init(contours: buildMainRenderContours()) }
     }
     
     public var layers: [FrRenderLayer] {
@@ -159,16 +151,10 @@ class FrGlyph {
     }
     
     public var width: Double {
-        get {
-            glyph.layout.width
-        }
+        get { glyph.layout.width }
     }
     
     public var height: Double {
-        get {
-            glyph.layout.height - Double(
-                glyph.layout.horizontalMetrics.descent
-            )
-        }
+        get { glyph.layout.height - Double(glyph.layout.horizontalMetrics.descent) }
     }
 }

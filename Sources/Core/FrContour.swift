@@ -23,30 +23,18 @@ public struct FrContour {
     let direction: FrContourDirection
     let DEBUG__renderOptions: DEBUG__RenderOptions
     
-    public func DEBUG__setStrokeColor(
-        _ color: DEBUG__FrStrokeColors
-    ) -> Self {
+    public func DEBUG__setStrokeColor(_ color: DEBUG__FrStrokeColors) -> Self {
         .init(
             origin: origin,
             points: points,
             direction: direction,
-            DEBUG__renderOptions: DEBUG__renderOptions.DEBUG__setColor(
-                color
-            )
+            DEBUG__renderOptions: DEBUG__renderOptions.DEBUG__setColor(color)
         )
     }
     
-    public func toScaled(
-        by scale: Double
-    ) -> Self {
-        let newOrigin = origin.toScaled(
-            by: scale
-        )
-        let newPoints = points.map {
-            $0.toScaled(
-                by: scale
-            )
-        }
+    public func toScaled(by scale: Double) -> Self {
+        let newOrigin = origin.toScaled(by: scale)
+        let newPoints = points.map { $0.toScaled(by: scale) }
         
         return .init(
             origin: newOrigin,

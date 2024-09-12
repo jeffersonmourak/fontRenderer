@@ -480,3 +480,16 @@ func DEBUG__BuildDebugLayer(
     
     return debugLayer
 }
+
+func DEBUG_getGlyphFillColor(debugLevels: [DEBUG__FrOverlayOptions]) -> Color {
+    for debugLevel in debugLevels {
+        switch debugLevel {
+        case let .FontColorOverlay(color):
+            return color
+        default:
+            continue
+        }
+    }
+    
+    return .white
+}
