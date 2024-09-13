@@ -58,6 +58,7 @@ func loadFont(_ path: String) throws -> FontLoader {
 enum FontViews: String {
     case type = "type"
     case all = "all"
+    case info = "info"
 }
 
 struct ContentView : View {
@@ -87,6 +88,8 @@ struct ContentView : View {
                         FontRenderView(loader: loader, debugLevels: $enabledDebugLevels)
                     case .all:
                         FontRenderAllView(loader: loader, debugLevels: $enabledDebugLevels)
+                    case .info:
+                        FontInfoView(loader: loader)
                     }
             case .loading:
                 Text("Loaded!")
@@ -99,6 +102,7 @@ struct ContentView : View {
                 List(selection: $currentView) {
                     NavigationLink(value: FontViews.type) { Label("Type Text", systemImage: "text.quote") }
                     NavigationLink(value: FontViews.all) { Label("All Glyphs",systemImage: "square.grid.3x2") }
+                    NavigationLink(value: FontViews.info) { Label("Font Info",systemImage: "info.square") }
                 }
                 .toolbar(removing: .sidebarToggle)
             },
