@@ -133,7 +133,6 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
     open func windowDidResize(_ size:Size) {}
     
     // MouseEventDelegate
-    
     open func mouseDown(_ point:Point, button:Int) {}
     open func mouseMove(_ point:Point) {}
     open func mouseUp(_ point:Point) {}

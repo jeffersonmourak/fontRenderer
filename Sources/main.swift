@@ -6,12 +6,14 @@ import Cocoa
 import SwiftUI
 
 struct FontRenderer: ParsableCommand {
-    @Argument() var fontPath: String
+    @Argument() var fontPath: String?
    
     func run() {
         let app = FontRendererApplication()
-        app.inputPath = fontPath
-        app.run() 
+        if fontPath != nil {
+            app.inputPath = fontPath!
+        }
+        app.run()
     }
 }
 

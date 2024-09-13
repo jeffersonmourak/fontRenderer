@@ -7,55 +7,26 @@
 
 import Foundation
 
-fileprivate func toCGPoint(
-    _ frPoint: FrPoint
-) -> CGPoint {
-    .init(
-        x: frPoint.x,
-        y: frPoint.y
-    )
+fileprivate func toCGPoint(_ frPoint: FrPoint) -> CGPoint {
+    .init(x: frPoint.x, y: frPoint.y)
 }
 
-fileprivate func clearPoint(
-    _ frPoint: FrPoint
-) -> FrPoint {
-    let newX = Double(
-        round(
-            1000 * frPoint.x
-        ) / 1000
-    )
-    let newY = Double(
-        round(
-            1000 * frPoint.y
-        ) / 1000
-    )
+fileprivate func clearPoint(_ frPoint: FrPoint) -> FrPoint {
+    let newX = Double(round(1000 * frPoint.x) / 1000)
+    let newY = Double(round(1000 * frPoint.y) / 1000)
     
+    return .init(x: newX, y: newY, onCurve: frPoint.onCurve)
+}
+
+fileprivate func scalePoint(_ frPoint: FrPoint, by scale: Double) -> FrPoint {
     return .init(
-        x: newX,
-        y: newY,
+        x: frPoint.x.toScaled(by: scale),
+        y: frPoint.y.toScaled(by: scale),
         onCurve: frPoint.onCurve
     )
 }
 
-fileprivate func scalePoint(
-    _ frPoint: FrPoint,
-    by scale: Double
-) -> FrPoint {
-    return .init(
-        x: frPoint.x.toScaled(
-            by: scale
-        ),
-        y: frPoint.y.toScaled(
-            by: scale
-        ),
-        onCurve: frPoint.onCurve
-    )
-}
-
-fileprivate func areEqual(
-    lhs: FrPoint,
-    rhs: FrPoint
-) -> Bool {
+fileprivate func areEqual(lhs: FrPoint, rhs: FrPoint) -> Bool {
     let areXEqual = lhs.x == rhs.x
     let areYEqual = lhs.y == rhs.y
     let areOnCurveEqual = lhs.onCurve == rhs.onCurve
@@ -63,15 +34,9 @@ fileprivate func areEqual(
     return areXEqual && areYEqual && areOnCurveEqual
 }
 
-fileprivate func isPointOnCurve(
-    _ item: FrPoint
-) -> Bool {
+fileprivate func isPointOnCurve(_ item: FrPoint) -> Bool {
     item.onCurve
 }
-
-let a = CGPoint(x: 0, y: 0)
-
-let k = FrPoint(from: a, onCurve: true)
 
 public struct FrPoint: Equatable {
     public let x: Double
@@ -84,11 +49,11 @@ public struct FrPoint: Equatable {
         self.onCurve = onCurve
     }
     
-    init(from: CGPoint, onCurve: Bool) {
+    init(from: CGPoint, onCurve: Bool = false) {
         self.init(x: from.x, y: from.y, onCurve: onCurve)
     }
     
-    init(from: FrPoint, onCurve: Bool) {
+    init(from: FrPoint, onCurve: Bool = false) {
         self.init(x: from.x, y: from.y, onCurve: onCurve)
     }
     
@@ -100,11 +65,11 @@ public struct FrPoint: Equatable {
         self.init(x: from.x, y: y, onCurve: from.onCurve)
     }
     
-    init(from: FrPoint, x: Double, onCurve: Bool) {
+    init(from: FrPoint, x: Double, onCurve: Bool = false) {
         self.init(x: x, y: from.y, onCurve: from.onCurve)
     }
     
-    init(from: FrPoint, y: Double, onCurve: Bool) {
+    init(from: FrPoint, y: Double, onCurve: Bool = false) {
         self.init(x: from.x, y: y, onCurve: from.onCurve)
     }
     
@@ -112,7 +77,7 @@ public struct FrPoint: Equatable {
         self.init(x: x, y: y, onCurve: from.onCurve)
     }
     
-    init(from: FrPoint, x: Double, y: Double, onCurve: Bool) {
+    init(from: FrPoint, x: Double, y: Double, onCurve: Bool = false) {
         self.init(x: x, y: y, onCurve: onCurve)
     }
     

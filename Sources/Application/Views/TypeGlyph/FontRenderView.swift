@@ -43,9 +43,19 @@ struct FontRenderView : View {
         case .space:
             Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: CGFloat(loader.fontInfo.unitsPerEm) * fontRenderScale)
         case let .character(char):
-            FrGlyphView(glyph: try! loader.getGlyphContours(at: char.glyphIndex), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
+            FrGlyphView(
+                glyph: try! loader.getGlyphContours(at: char.glyphIndex),
+                scale: fontRenderScale,
+                fontHeight: fontHeight,
+                debugLevels: $debugLevels
+            )
         case let .glyph(index):
-            FrGlyphView(glyph: try! loader.getGlyphContours(at: index), scale: fontRenderScale, fontHeight: fontHeight, debugLevels: $debugLevels)
+            FrGlyphView(
+                glyph: try! loader.getGlyphContours(at: index),
+                scale: fontRenderScale,
+                fontHeight: fontHeight,
+                debugLevels: $debugLevels
+            )
         }
     }
     
@@ -71,9 +81,7 @@ struct FontRenderView : View {
         }
         
         HStack {
-            ForEach(chars) { char in
-                RenderGlyph(withType: char)
-            }
+            ForEach(chars) { RenderGlyph(withType: $0) }
         }
     }
     

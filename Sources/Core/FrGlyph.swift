@@ -20,42 +20,22 @@ public struct FrRenderLayer {
     var layerType: FrContourLayerType = .Main
     let contours: [FrContour]
     
-    public func DEBUG__setLayerStrokeColor(
-        _ color: DEBUG__FrStrokeColors
-    ) -> Self {
-        let newContours = contours.map({
-            $0.DEBUG__setStrokeColor(
-                color
-            )
-        })
+    public func DEBUG__setLayerStrokeColor(_ color: DEBUG__FrStrokeColors) -> Self {
+        let newContours = contours.map({ $0.DEBUG__setStrokeColor(color) })
         
-        return .init(
-            layerType: layerType,
-            contours: newContours
-        )
+        return .init(layerType: layerType, contours: newContours)
     }
     
-    public func toScaled(
-        by scale: Double
-    ) -> Self {
-        let newContours = contours.map {
-            $0.toScaled(
-                by: scale
-            )
-        }
+    public func toScaled(by scale: Double) -> Self {
+        let newContours = contours.map { $0.toScaled(by: scale) }
         
-        return .init(
-            layerType: layerType,
-            contours: newContours
-        )
+        return .init(layerType: layerType, contours: newContours)
     }
 }
 
 extension Array where Element == FrRenderLayer {
     func toScaled(by scale: Double) -> [FrRenderLayer] {
-        self.map {
-            $0.toScaled(by: scale)
-        }
+        self.map { $0.toScaled(by: scale) }
     }
 }
 
@@ -64,11 +44,7 @@ class FrGlyph {
     let glyph: Glyph
     let DEBUG__overlayOptions: [DEBUG__FrOverlayOptions]
     
-    init (
-        from inputGlyph: Glyph,
-        scale: Double = 0,
-        debug: [DEBUG__FrOverlayOptions] = []
-    ) {
+    init (from inputGlyph: Glyph, scale: Double = 0, debug: [DEBUG__FrOverlayOptions] = []) {
         self.glyph = inputGlyph
         self.DEBUG__overlayOptions = debug
     }
@@ -79,9 +55,9 @@ class FrGlyph {
         if points.count < 2 { return .Clockwise }
         
         for i in 0..<points.count {
-            let a1 = points[(i + points.count) % points.count]
-            let b2 = points[(i + points.count + 1) % points.count]
-            let c3 = points.count > 2 ? points[(i + points.count + 2) % points.count] : points[0]
+            let a1 = points.getCircular(at: i)
+            let b2 = points.getCircular(at: i + 1)
+            let c3 = points.count > 2 ? points.getCircular(at: i + 2) : points[0]
             
             let A = (b2.x * a1.y) + (c3.x * b2.y) + (a1.x * c3.y)
             let B = (a1.x * b2.y) + (b2.x * c3.y) + (c3.x * a1.y)
@@ -101,11 +77,7 @@ class FrGlyph {
             let contour = glyph.contours[i]
             
             let coords = contour.map {
-                FrPoint(
-                    x: $0.x,
-                    y: $0.y,
-                    onCurve: $0.flag.onCurve
-                )
+                FrPoint(x: $0.x, y: $0.y, onCurve: $0.flag.onCurve)
             }
             
             if coords.count == 0 {
@@ -121,9 +93,7 @@ class FrGlyph {
                     origin: coords[0],
                     points: coords,
                     direction: getPointFoldingDirection(coords),
-                    DEBUG__renderOptions: .init(
-                        color: debugColor
-                    )
+                    DEBUG__renderOptions: .init(color: debugColor)
                 )
             )
         }
@@ -141,9 +111,7 @@ class FrGlyph {
                 DEBUG__BuildDebugLayer(
                     glyph: glyph,
                     debugInstructions: DEBUG__overlayOptions,
-                    mainLayer: .init(
-                        contours: buildMainRenderContours()
-                    )
+                    mainLayer: .init(contours: buildMainRenderContours())
                 ),
                 mainLayer,
             ]
@@ -151,7 +119,7 @@ class FrGlyph {
     }
     
     public var width: Double {
-        get { glyph.layout.width }
+        get { Double(glyph.layout.width - 50) }
     }
     
     public var height: Double {

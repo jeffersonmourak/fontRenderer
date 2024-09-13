@@ -56,19 +56,9 @@ public struct FrGyphPath {
     
     public func render(at context: inout GraphicsContext, with shading: GraphicsContext.Shading = .color(.accentColor)) {
         if renderMode == .Fill {
-            context.blendMode = .xor
-            
-            context.fill(
-                path,
-                with: shading
-            )
-            context.blendMode = .normal
+            context.fill(path,with: shading)
         } else {
-            context.stroke(
-                path,
-                with: color,
-                style: style
-            )
+            context.stroke(path, with: color, style: style)
         }
     }
 }
@@ -89,7 +79,7 @@ extension Array where Element == FrGyphPath {
                 : unifiedPath.union(instruction.path, eoFill: true)
         }
         
-        let unifiedInstruction: FrGyphPath = .init(
+        let unifiedInstruction = FrGyphPath(
             path: unifiedPath,
             color: self[0].color,
             style: self[0].style,

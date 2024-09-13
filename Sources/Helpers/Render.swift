@@ -38,11 +38,8 @@ fileprivate func buildSegments(from points: [FrPoint]) -> [[FrPoint]] {
     
     
     for i in 0..<points.count {
-        let currI = points.getCircularIndex(at: i, offsetBy: offsetBy)
-        let nextI = points.getCircularIndex(at: i + 1, offsetBy: offsetBy)
-        
-        let curr = points[currI]
-        let next = points[nextI]
+        let curr = points.getCircular(at: i, offsetBy: offsetBy)
+        let next = points.getCircular(at: i + 1, offsetBy: offsetBy)
         
         if curr.onCurve && next.onCurve {
             var segment = [next, curr]
@@ -67,14 +64,12 @@ fileprivate func buildSegments(from points: [FrPoint]) -> [[FrPoint]] {
 }
 
 struct RenderHelper {
-    public static func buildBezierSegments(from layerPoints: [FrPoint], origin: FrPoint) -> Path {
+    public static func buildBezierPath(from layerPoints: [FrPoint], origin: FrPoint) -> Path {
         var path: Path = Path()
         
         path.move(to: origin.cgPoint())
         
-        if layerPoints.count == 0 {
-            return path;
-        }
+        if layerPoints.count == 0 { return path }
         
         for segment in buildSegments(from: layerPoints) {
             if segment.count == 2 {
@@ -89,7 +84,6 @@ struct RenderHelper {
                 path.addQuadCurve(to: a.cgPoint(), control: b.cgPoint())
             }
         }
-        
         
         path.addLine(to: origin.cgPoint())
         
@@ -114,7 +108,7 @@ struct RenderHelper {
                 ? contour.points[0..<Int(DEBUG_mainLayerMaxPoints[i])].asArray()
                 : contour.points
                 
-                path = RenderHelper.buildBezierSegments(from: points, origin: contour.origin)
+                path = RenderHelper.buildBezierPath(from: points, origin: contour.origin)
             } else {
                 path.addLines(contour.points.asCGPointArray())
             }

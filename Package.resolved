@@ -1,0 +1,24 @@
+{
+  "originHash" : "fb6ebdb23447cfb5b65fafe2e6c71fb6c2900c0d46168938b90efce61d24cde3",
+  "pins" : [
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "41982a3656a71c768319979febd796c6fd111d5c",
+        "version" : "1.5.0"
+      }
+    },
+    {
+      "identity" : "swiftmath",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftGFX/SwiftMath",
+      "state" : {
+        "revision" : "13a224a655cbef1ef0e39d7d22e31a4ff6bc9937",
+        "version" : "3.3.1"
+      }
+    }
+  ],
+  "version" : 3
+}
