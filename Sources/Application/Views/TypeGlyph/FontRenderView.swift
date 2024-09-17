@@ -61,27 +61,31 @@ struct FontRenderView : View {
     
     @ViewBuilder
     func viewGlyph(for state: CurrentGlyph) -> some View {
-        let initialChars: [GlyphRenderType] = showDefaultGlyph ? [.glyph(0)] : []
+        let initialChars: [Glyph] = showDefaultGlyph ? [try! loader.getGlyphContours(at: 0)] : []
         
-        let chars: [GlyphRenderType] = inputText.reduce(initialChars) { chars, char in
+        let chars: [Glyph] = inputText.reduce(initialChars) { chars, char in
             guard let charMapItem = loader.characters[char] else {
                 return chars
             }
             var newChars = chars
             
             if char == " " {
-                newChars.append(.space)
+                // newChars.append(.space)
                 
                 return newChars
             }
+
+            let glyph = try! loader.getGlyphContours(at: charMapItem.glyphIndex)
+
+            newChars.append(glyph)
             
-            newChars.append(.character(charMapItem))
+            // newChars.append(.character(charMapItem))
             
             return newChars
         }
         
         HStack {
-            ForEach(chars) { RenderGlyph(withType: $0) }
+            FrGlyphCanvas(glyphs: chars, scale: fontRenderScale, debugLevels: debugLevels)
         }
     }
     

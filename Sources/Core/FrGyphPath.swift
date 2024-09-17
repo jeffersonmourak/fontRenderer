@@ -75,7 +75,7 @@ extension Array where Element == FrGyphPath {
         
         for instruction in self {
             unifiedPath = instruction.direction == .Clockwise
-                ? unifiedPath.subtracting(instruction.path, eoFill: true)
+                ? unifiedPath.subtracting(instruction.path)
                 : unifiedPath.union(instruction.path, eoFill: true)
         }
         

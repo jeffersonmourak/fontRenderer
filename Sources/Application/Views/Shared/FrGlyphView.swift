@@ -26,21 +26,13 @@ struct FrGlyphView: View {
         let height = fontGlyph.height.toScaled(by: scale)
         
         VStack {
-            Canvas {
-                context,
-                size in
-                for layer in fontGlyph.layers {
-                    let scaled = layer.toScaled(by: scale)
-                    var paths: [FrGyphPath] = []
-                    
-                    paths = RenderHelper.buildFrGlyphPaths(fromlayer: scaled)
-                    paths.render(
-                        at: &context,
-                        with: .color(DEBUG_getGlyphFillColor(debugLevels: debugLevels)),
-                        mergePaths: scaled.layerType == .Main
-                    )
-                }
-            }.frame(width: width, height: height)
-        }
+            FrGlyphCanvas(glyphs: [glyph], scale: scale, debugLevels: debugLevels).frame(width: width, height: height)
+            VStack{
+                Text("Glyph: \(glyph.name)")
+                    .font(.caption)
+                Text("Index: \(glyph.index)")
+                    .font(.caption)
+            }.padding()
+        }.frame(width: width * 1.5)
     }
 }

@@ -11,7 +11,7 @@ import SwiftUI
 
 class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
-    var windowSize = Signal<Size>(Size(880, 480));
+    var windowSize = Signal<Size>(Size(Constants.defaultWidth, Constants.defaultHeight));
     var window: NSWindow!
     
     func makeMainMenu() -> NSMenu {
@@ -85,19 +85,11 @@ class ViewportApplication: NSObject, NSApplicationDelegate, NSWindowDelegate {
         )
         NSApplication.shared.mainMenu = makeMainMenu()
         
-        guard let mainScreen = NSScreen.main else {
-            assertionFailure()
-            return
-            
-        }
-        
         window.styleMask = NSWindow.StyleMask(
             rawValue: window.styleMask.rawValue | NSWindow.StyleMask.resizable.rawValue
         )
         
-        let mainScreenVisibleFrame = mainScreen.visibleFrame
-        
-        window.maxSize = .init(width: mainScreenVisibleFrame.width / 2, height: mainScreenVisibleFrame.height / 2)
+        window.maxSize = .init(width: Constants.defaultWidth, height: Constants.defaultWidth)
     }
     
     open func applicationDidFinishLaunching(
