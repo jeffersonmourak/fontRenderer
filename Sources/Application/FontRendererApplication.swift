@@ -26,7 +26,7 @@ class FontRendererApplication: ViewportApplication {
         rect.origin.x = 0.0
         rect.origin.y = 0.0
         
-        let controller = NSHostingController(rootView: ContentView(inputPath))
+        let controller = NSHostingController(rootView: FrContentView(inputPath))
         
         controller.sizingOptions = [.standardBounds]
         controller.view.frame = rect

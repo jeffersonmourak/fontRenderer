@@ -12,7 +12,6 @@ import FontLoader
 struct FrGlyphView: View {
     var glyph: Glyph
     var scale: Double = 1
-    var fontHeight: Double
     var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
     @Binding var debugLevels: [DEBUG__FrOverlayOptions]
     @State var contourLayer: Int = 0
@@ -26,10 +25,12 @@ struct FrGlyphView: View {
         let height = fontGlyph.height.toScaled(by: scale)
         
         VStack {
-            FrGlyphCanvas(glyphs: [glyph], scale: scale, debugLevels: debugLevels).frame(width: width, height: height)
+            FrGlyphCanvas(glyphs: [glyph], scale: scale, debugLevels: $debugLevels).frame(width: width, height: height)
             VStack{
-                Text("Glyph: \(glyph.name)")
+                Text(glyph.name)
                     .font(.caption)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
                 Text("Index: \(glyph.index)")
                     .font(.caption)
             }.padding()

@@ -42,14 +42,12 @@ extension Array where Element == FrRenderLayer {
 
 class FrGlyph {
     let glyph: Glyph
-    let DEBUG__overlayOptions: [DEBUG__FrOverlayOptions]
+    private var DEBUG__overlayOptions: [DEBUG__FrOverlayOptions]
     
     init (from inputGlyph: Glyph, scale: Double = 0, debug: [DEBUG__FrOverlayOptions] = []) {
         self.glyph = inputGlyph
         self.DEBUG__overlayOptions = debug
     }
-    
-    
     
     private func getPointFoldingDirection(_ points: [FrPoint]) -> FrContourDirection {
         if points.count < 2 { return .Clockwise }
@@ -108,12 +106,12 @@ class FrGlyph {
     public var layers: [FrRenderLayer] {
         get {
             [
+                mainLayer,
                 DEBUG__BuildDebugLayer(
                     glyph: glyph,
                     debugInstructions: DEBUG__overlayOptions,
                     mainLayer: .init(contours: buildMainRenderContours())
                 ),
-                mainLayer,
             ]
         }
     }
@@ -124,5 +122,9 @@ class FrGlyph {
     
     public var height: Double {
         get { glyph.layout.height - Double(glyph.layout.horizontalMetrics.descent) }
+    }
+
+    public func DEBUG__SetDebugOptions(_ options: [DEBUG__FrOverlayOptions]) {
+        self.DEBUG__overlayOptions = options
     }
 }

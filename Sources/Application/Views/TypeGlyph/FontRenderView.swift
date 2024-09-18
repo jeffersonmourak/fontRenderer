@@ -30,34 +30,10 @@ struct FontRenderView : View {
     var loader: FontLoader
     
     @State var currentGlyph: CurrentGlyph = .missing
-    @State var fontRenderScale = 0.3
-    @State var fontHeight: Double = 730
+    @State var fontRenderScale = 0.3 
     @State var inputText: String = ""
     @State var showDefaultGlyph: Bool = false
     @Binding var debugLevels: [DEBUG__FrOverlayOptions]
-    
-
-    @ViewBuilder
-    func RenderGlyph(withType type: GlyphRenderType) -> some View {
-        switch type {
-        case .space:
-            Rectangle().fill(.clear).frame(width: Double(loader.horizontalHeader.advanceWidthMax) * fontRenderScale, height: CGFloat(loader.fontInfo.unitsPerEm) * fontRenderScale)
-        case let .character(char):
-            FrGlyphView(
-                glyph: try! loader.getGlyphContours(at: char.glyphIndex),
-                scale: fontRenderScale,
-                fontHeight: fontHeight,
-                debugLevels: $debugLevels
-            )
-        case let .glyph(index):
-            FrGlyphView(
-                glyph: try! loader.getGlyphContours(at: index),
-                scale: fontRenderScale,
-                fontHeight: fontHeight,
-                debugLevels: $debugLevels
-            )
-        }
-    }
     
     @ViewBuilder
     func viewGlyph(for state: CurrentGlyph) -> some View {
@@ -68,24 +44,19 @@ struct FontRenderView : View {
                 return chars
             }
             var newChars = chars
-            
-            if char == " " {
-                // newChars.append(.space)
-                
-                return newChars
-            }
 
-            let glyph = try! loader.getGlyphContours(at: charMapItem.glyphIndex)
+            let charIndex =  char == " " ? loader.getSpaceGlyphIndex() : charMapItem.glyphIndex
+            
+
+            let glyph = try! loader.getGlyphContours(at: charIndex)
 
             newChars.append(glyph)
-            
-            // newChars.append(.character(charMapItem))
-            
+
             return newChars
         }
         
         HStack {
-            FrGlyphCanvas(glyphs: chars, scale: fontRenderScale, debugLevels: debugLevels)
+            FrGlyphCanvas(glyphs: chars, scale: fontRenderScale, debugLevels: $debugLevels)
         }
     }
     

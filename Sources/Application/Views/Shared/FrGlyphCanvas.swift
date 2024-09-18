@@ -10,28 +10,32 @@ import Foundation
 import SwiftUI
 
 struct FrGlyphCanvas: View {
-  let glyphs: [FrGlyph]
-  let scale: Double
-  let debugLevels: [DEBUG__FrOverlayOptions]
-
-  let width: Double
-
-  init(glyphs: [Glyph], scale: Double, debugLevels: [DEBUG__FrOverlayOptions]) {
-    self.scale = scale
-    self.debugLevels = debugLevels
-
-    self.glyphs = glyphs.map {
-      FrGlyphManager.shared.loadGlyph(from: $0, scale: scale, debug: debugLevels)
+  let glyphs: [Glyph]
+  var scale: Double
+  @Binding var debugLevels: [DEBUG__FrOverlayOptions]
+  var width: Double {
+    return glyphs.reduce(0) {
+      let fontGlyph: FrGlyph = FrGlyphManager.shared.loadGlyph(
+        from: $1, scale: scale, debug: debugLevels)
+      return $0 + fontGlyph.width.toScaled(by: scale)
     }
-
-    self.width = self.glyphs.reduce(0) { $0 + $1.width.toScaled(by: scale) }
   }
 
   var body: some View {
     Canvas {
       context,
       size in
-      for fontGlyph in glyphs {
+      for glyph: Glyph in glyphs {
+
+        let fontGlyph: FrGlyph =
+          FrGlyphManager.shared.loadGlyph(
+            from: glyph,
+            scale: scale,
+            debug: debugLevels
+          )
+
+        fontGlyph.DEBUG__SetDebugOptions(debugLevels)
+
         for layer in fontGlyph.layers {
           let scaled = layer.toScaled(by: scale)
           var paths: [FrGyphPath] = []

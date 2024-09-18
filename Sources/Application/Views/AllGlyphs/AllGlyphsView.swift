@@ -37,7 +37,7 @@ struct FontRenderAllView : View {
                         GlyphRowView(loader: loader, offset: toIndex(index, offset: 7), debugLevels: $debugLevels, fontRenderScale: 0.1)
                     }
                 }
-            }
+            }.padding()
         }
     }
 }
