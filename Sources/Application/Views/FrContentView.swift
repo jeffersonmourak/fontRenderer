@@ -61,7 +61,7 @@ enum FontViews: String {
     case info = "info"
 }
 
-struct ContentView : View {
+struct FrContentView : View {
     @State private var fontPath: String
     @State private var enabledDebugLevels: [DEBUG__FrOverlayOptions] = []
     @State private var contentState: ViewState
