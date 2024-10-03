@@ -12,6 +12,7 @@ let package = Package(
         .package(path: "../FontLoader"),
         .package(url: "https://github.com/SwiftGFX/SwiftMath", from: "3.3.1"),
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.3.0"),
+        .package(url: "https://github.com/thebarndog/swift-dotenv.git", .upToNextMajor(from: "2.0.0"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -21,6 +22,7 @@ let package = Package(
             dependencies: [
                 "FontLoader",
                 "SwiftMath",
+                .product(name: "SwiftDotenv", package: "swift-dotenv"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
             ]
         ),
