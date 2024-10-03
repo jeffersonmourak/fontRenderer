@@ -12,11 +12,11 @@ import SwiftUI
 enum DEBUG__FrOverlayOptions: Equatable {
     case ColorContoursOverlay
     case BaselineOverlay
-    case BoundBoxOverlay
     case RealPointsOverlay
     case ImpliedPointsOverlay
-    case SteppedPointsOverlay
+    case PointsOutlineOverlay
     case FontColorOverlay(color: Color)
+    case MainLayerOutlineOverlay
 }
 
 public enum DEBUG__FrStrokeColors {
@@ -128,18 +128,6 @@ func DEBUG__BuildDebugLayer(glyph: Glyph, debugInstructions: [DEBUG__FrOverlayOp
         }
     }
     
-    var DEBUG_BORDER_CONTOURS: FrContour {
-        get {
-            let ((minX, minY), (maxX, maxY)) = getContoursBoundaries(contours: glyph.contours)
-            let tl = FrPoint(x: minX, y: minY)
-            let tr = FrPoint(x: maxX, y: minY)
-            let br = FrPoint(x: maxX, y: maxY)
-            let bl = FrPoint(x: minX, y: maxY)
-            
-            return FrContour(origin: tl, points: [tl, tr, br, bl, tl], direction: .Clockwise, DEBUG__renderOptions: .init(color: DEBUG__FrStrokeColors.PINK))
-        }
-    }
-    
     var DEBUG_CONTOURS_POINTS: [FrContour] {
         get {
             var pointInstructions: [FrContour] = []
@@ -194,7 +182,7 @@ func DEBUG__BuildDebugLayer(glyph: Glyph, debugInstructions: [DEBUG__FrOverlayOp
         }
     }
     
-    var instructions: [FrContour] = debugInstructions.contains(.SteppedPointsOverlay) ? mainDebugLayer.contours : []
+    var instructions: [FrContour] = debugInstructions.contains(.PointsOutlineOverlay) ? mainDebugLayer.contours : []
     
     if debugInstructions.contains(.BaselineOverlay) {
         instructions.append(DEBUG_BASELINE_CONTOURS)
@@ -206,10 +194,6 @@ func DEBUG__BuildDebugLayer(glyph: Glyph, debugInstructions: [DEBUG__FrOverlayOp
     
     if debugInstructions.contains(.ImpliedPointsOverlay) {
         instructions.append(contentsOf: DEBUG_CONTOURS_IMPLIED_POINTS)
-    }
-    
-    if debugInstructions.contains(.BoundBoxOverlay) {
-        instructions.append(DEBUG_BORDER_CONTOURS)
     }
     
     return FrRenderLayer(layerType: .Debug, contours: instructions)

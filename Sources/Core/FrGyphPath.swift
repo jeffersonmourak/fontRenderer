@@ -42,7 +42,7 @@ struct RenderGlyphOptions {
 //        let baseL = ((upm - ascender) + lineGap + sCapHeight) * scale
 //        let des = (descender / upm)
 
-enum RenderMode {
+enum FrGlyphRenderMode {
     case Fill
     case Stroke
 }
@@ -52,7 +52,7 @@ public struct FrGyphPath {
     let color: GraphicsContext.Shading
     let style: StrokeStyle
     let direction: FrContourDirection
-    var renderMode: RenderMode = .Stroke
+    var renderMode: FrGlyphRenderMode = .Stroke
     
     public func render(at context: inout GraphicsContext, with shading: GraphicsContext.Shading = .color(.accentColor)) {
         if renderMode == .Fill {

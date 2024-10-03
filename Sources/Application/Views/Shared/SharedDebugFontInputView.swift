@@ -112,12 +112,6 @@ struct SharedDebugFontInputView : View {
                         debugLevels: $enabledDebugLevels
                     )
                     DebugToggleButton(
-                        target: .BoundBoxOverlay,
-                        icon: "squareshape.squareshape.dotted",
-                        help: "Debug Glyph border",
-                        debugLevels: $enabledDebugLevels
-                    )
-                    DebugToggleButton(
                         target: .RealPointsOverlay,
                         icon: "point.3.filled.connected.trianglepath.dotted",
                         help: "Debug Glyph Points",
@@ -130,9 +124,16 @@ struct SharedDebugFontInputView : View {
                         debugLevels: $enabledDebugLevels
                     )
                     DebugToggleButton(
-                        target: .SteppedPointsOverlay,
+                        target: .PointsOutlineOverlay,
                         icon: "scope",
                         help: "Step over points",
+                        debugLevels: $enabledDebugLevels
+                    )
+                    DebugToggleButton(
+                        target: .MainLayerOutlineOverlay,
+                        icon: "diamond",
+                        offIcon: "diamond.inset.filled",
+                        help: "Toggle Glyph outline",
                         debugLevels: $enabledDebugLevels
                     )
                     HStack {

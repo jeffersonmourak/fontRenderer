@@ -14,8 +14,6 @@ struct FrGlyphView: View {
     var scale: Double = 1
     var renderOptions: RenderGlyphOptions = RenderGlyphOptions.create()
     @Binding var debugLevels: [DEBUG__FrOverlayOptions]
-    @State var contourLayer: Int = 0
-    @State var DEBUG_mainLayerMaxPoints: [Double] = []
     
     var path = Path()
     
@@ -23,9 +21,10 @@ struct FrGlyphView: View {
         let fontGlyph = FrGlyphManager.shared.loadGlyph(from: glyph, scale: scale, debug: debugLevels)
         let width = fontGlyph.width.toScaled(by: scale)
         let height = fontGlyph.height.toScaled(by: scale)
+        @State var focusPoint: CGPoint = .zero
         
         VStack {
-            FrGlyphCanvas(glyphs: [glyph], scale: scale, debugLevels: $debugLevels).frame(width: width, height: height)
+            FrGlyphCanvas(glyphs: [glyph], scale: scale, debugLevels: $debugLevels, focusPoint: $focusPoint).frame(width: width, height: height)
             VStack{
                 Text(glyph.name)
                     .font(.caption)
