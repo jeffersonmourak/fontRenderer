@@ -48,40 +48,6 @@ private func getFirstOnCurveIndex(from points: [FrPoint]) -> Int {
     return 0
 }
 
-private func buildSegments(from points: [FrPoint]) -> [[FrPoint]] {
-    var segments: [[FrPoint]] = []
-    var currentSegment: [FrPoint] = []
-    let offsetBy = getFirstOnCurveIndex(from: points)
-
-    for i in 0..<points.count {
-        let curr = points.getCircular(at: i, offsetBy: offsetBy)
-        let next = points.getCircular(at: i + 1, offsetBy: offsetBy)
-
-        if curr.onCurve && next.onCurve {
-            var segment = [next, curr]
-            segment.append(contentsOf: currentSegment)
-            segments.append(segment)
-            continue
-        }
-
-        if curr.onCurve && !next.onCurve {
-            currentSegment.append(curr)
-            continue
-        }
-
-        if !curr.onCurve && next.onCurve {
-            var segment = [next, curr]
-            segment.append(contentsOf: currentSegment)
-            segments.append(segment)
-
-            currentSegment.removeAll()
-            continue
-        }
-    }
-
-    return segments
-}
-
 struct RenderHelper {
     public static func buildBezierPath(from layerPoints: [FrPoint], origin: FrPoint) -> Path {
         var path: Path = Path()
@@ -90,27 +56,56 @@ struct RenderHelper {
 
         if layerPoints.count == 0 { return path }
 
-        for segment in buildSegments(from: layerPoints[0..<layerPoints.count].asArray()) {
-            // print(segment)
-            // print("####")
-            if segment.count == 2 {
-                path.addLine(to: segment[1].cgPoint())
-                // path.move(to: segment[0].cgPoint())
-            }
+        path.move(to: layerPoints[0].cgPoint())
 
-            if segment.count == 3 {
-                let a = segment[0]
-                let b = segment[1]
-                let c = segment[2]
+        var i = 1
+
+        var pointsStack: [FrPoint] = []
+
+        while i < layerPoints.count {
+            let curr = layerPoints[i]
+            let prev = layerPoints[i - 1]
+
+            if pointsStack.count == 2 {
+                let a = pointsStack[1]
+                let b = pointsStack[0]
 
                 path.addQuadCurve(to: a.cgPoint(), control: b.cgPoint())
-                // path.move(to: c.cgPoint())
+
+                pointsStack.removeAll()
             }
+
+            if prev.onCurve && curr.onCurve {
+                path.addLine(to: curr.cgPoint())
+                i += 1
+                continue
+            }
+
+            if prev.onCurve && !curr.onCurve {
+                pointsStack.append(curr)
+                i += 1
+                continue
+            }
+
+            if !prev.onCurve && curr.onCurve {
+                pointsStack.append(curr)
+                i += 1
+                continue
+            }
+
+            i += 1
         }
 
-        // print(layerPoints.last)
+        if pointsStack.count == 1 {
+            pointsStack.append(layerPoints[0])
 
-        path.addLine(to: origin.cgPoint())
+            let a = pointsStack[1]
+            let b = pointsStack[0]
+
+            path.addQuadCurve(to: a.cgPoint(), control: b.cgPoint())
+
+            pointsStack.removeAll()
+        }
 
         return path
     }

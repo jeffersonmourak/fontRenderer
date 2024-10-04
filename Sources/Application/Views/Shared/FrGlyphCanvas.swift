@@ -33,23 +33,25 @@ struct FrGlyphCanvas: View {
       context,
       size in
 
-      // Grid line color
-      let gridColor = Color.gray.opacity(0.5)
+      if debugLevels.contains(.GridOverlay) {
+        // Grid line color
+        let gridColor = Color.gray.opacity(0.5)
 
-      // Draw vertical grid lines
-      for x in stride(from: 0, to: size.width, by: 10) {
-        context.stroke(
-          Path(CGPath(rect: CGRect(x: x, y: 0, width: 1, height: size.height), transform: nil)),
-          with: .color(gridColor)
-        )
-      }
+        // Draw vertical grid lines
+        for x in stride(from: 0, to: size.width, by: 10) {
+          context.stroke(
+            Path(CGPath(rect: CGRect(x: x, y: 0, width: 0.5, height: size.height), transform: nil)),
+            with: .color(gridColor)
+          )
+        }
 
-      // Draw horizontal grid lines
-      for y in stride(from: 0, to: size.height, by: 10) {
-        context.stroke(
-          Path(CGPath(rect: CGRect(x: 0, y: y, width: size.width, height: 1), transform: nil)),
-          with: .color(gridColor)
-        )
+        // Draw horizontal grid lines
+        for y in stride(from: 0, to: size.height, by: 10) {
+          context.stroke(
+            Path(CGPath(rect: CGRect(x: 0, y: y, width: size.width, height: 0.5), transform: nil)),
+            with: .color(gridColor)
+          )
+        }
       }
 
       context.transform.tx = focusPoint.x

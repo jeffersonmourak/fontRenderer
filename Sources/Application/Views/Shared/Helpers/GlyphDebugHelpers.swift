@@ -17,6 +17,7 @@ enum DEBUG__FrOverlayOptions: Equatable {
     case PointsOutlineOverlay
     case FontColorOverlay(color: Color)
     case MainLayerOutlineOverlay
+    case GridOverlay
 }
 
 public enum DEBUG__FrStrokeColors {
@@ -95,8 +96,8 @@ func getContoursBoundaries(contours: [[GlyphPoint]]) -> ((CGFloat, CGFloat), (CG
 func DEBUG__getColor(_ index: Int) -> DEBUG__FrStrokeColors { DEBUG__COLORS[(index + DEBUG__COLORS.count) % DEBUG__COLORS.count] }
 
 func DEBUG__getPointColor(_ point: GlyphPoint, _ index: Int, _ count: Int) -> DEBUG__FrStrokeColors {
-    if count - 1 == index { return .PINK }
-    if index == 1 { return .INDIGO }
+    if count - 1 == index { return .PURPLE }
+    if index == 1 { return .ORANGE }
     return point.flag.onCurve ? .GREEN : .YELLOW
 }
 

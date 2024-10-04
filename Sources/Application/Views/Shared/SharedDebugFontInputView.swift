@@ -136,6 +136,12 @@ struct SharedDebugFontInputView : View {
                         help: "Toggle Glyph outline",
                         debugLevels: $enabledDebugLevels
                     )
+                    DebugToggleButton(
+                        target: .GridOverlay,
+                        icon: "grid",
+                        help: "Toggle grid overlay",
+                        debugLevels: $enabledDebugLevels
+                    )
                     HStack {
                         Divider()
                         DebugToggleButton(

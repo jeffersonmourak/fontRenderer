@@ -9,6 +9,7 @@ import Combine
 import FontLoader
 import Foundation
 import SwiftUI
+import SwiftDotenv
 
 enum CurrentGlyph {
     case missing
@@ -32,7 +33,7 @@ struct FontRenderView: View {
     @State var currentGlyph: CurrentGlyph = .missing
     @State var fontRenderScale = 0.3
     @State var currentScale = 0.0
-    @State var inputText: String = "o"
+    @State var inputText: String = Dotenv["FR_FONT_DEBUG_STRING"]?.stringValue ?? ""
     @State var showDefaultGlyph: Bool = false
     @State var focusPoint: CGPoint = .zero
     @Binding var debugLevels: [DEBUG__FrOverlayOptions]
