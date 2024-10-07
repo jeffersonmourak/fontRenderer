@@ -13,11 +13,11 @@ struct RenderStrokeOptions {
     var width: CGFloat
 }
 
-fileprivate let DEFAULT_GLYPH_STROKE_OPTIONS: RenderStrokeOptions = .init(
+private let DEFAULT_GLYPH_STROKE_OPTIONS: RenderStrokeOptions = .init(
     color: .gray,
     width: 2
 )
-fileprivate let DEFAULT_OUTLINE_STROKE_OPTIONS: RenderStrokeOptions = .init(
+private let DEFAULT_OUTLINE_STROKE_OPTIONS: RenderStrokeOptions = .init(
     color: .purple,
     width: 4
 )
@@ -25,12 +25,12 @@ fileprivate let DEFAULT_OUTLINE_STROKE_OPTIONS: RenderStrokeOptions = .init(
 struct RenderGlyphOptions {
     var glyph: RenderStrokeOptions
     var outline: RenderStrokeOptions
-    
+
     public static func create(
         usingGlyph glyph: RenderStrokeOptions = DEFAULT_GLYPH_STROKE_OPTIONS,
         usingOutline outline: RenderStrokeOptions = DEFAULT_OUTLINE_STROKE_OPTIONS
     ) -> RenderGlyphOptions {
-        
+
         return .init(
             glyph: glyph,
             outline: outline
@@ -53,10 +53,13 @@ public struct FrGyphPath {
     let style: StrokeStyle
     let direction: FrContourDirection
     var renderMode: FrGlyphRenderMode = .Stroke
-    
-    public func render(at context: inout GraphicsContext, with shading: GraphicsContext.Shading = .color(.accentColor)) {
+
+    public func render(
+        at context: inout GraphicsContext,
+        with shading: GraphicsContext.Shading = .color(.accentColor)
+    ) {
         if renderMode == .Fill {
-            context.fill(path,with: shading)
+            context.fill(path, with: shading)
         } else {
             context.stroke(path, with: color, style: style)
         }
@@ -64,21 +67,24 @@ public struct FrGyphPath {
 }
 
 extension Array where Element == FrGyphPath {
-    public func render(at context: inout GraphicsContext, with shading: GraphicsContext.Shading = .color(.accentColor), mergePaths: Bool = false) {
+    public func render(
+        at context: inout GraphicsContext,
+        with shading: GraphicsContext.Shading = .color(.accentColor), mergePaths: Bool = false
+    ) {
         if !mergePaths {
             for instruction in self { instruction.render(at: &context, with: shading) }
-            
+
             return
         }
-        
+
         var unifiedPath = Path()
-        
+
         for instruction in self {
-            unifiedPath = instruction.direction == .Clockwise
-                ? unifiedPath.subtracting(instruction.path)
-                : unifiedPath.union(instruction.path, eoFill: true)
+            unifiedPath =
+                instruction.direction == .CounterClockwise
+                ? unifiedPath.union(instruction.path) : unifiedPath.subtracting(instruction.path)
         }
-        
+
         let unifiedInstruction = FrGyphPath(
             path: unifiedPath,
             color: self[0].color,
@@ -86,7 +92,7 @@ extension Array where Element == FrGyphPath {
             direction: self[0].direction,
             renderMode: self[0].renderMode
         )
-        
+
         unifiedInstruction.render(at: &context, with: shading)
     }
 }
