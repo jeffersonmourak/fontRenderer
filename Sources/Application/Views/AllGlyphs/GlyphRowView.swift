@@ -40,7 +40,7 @@ struct GlyphRowView: View {
                     usingGlyph: .init(color: .white, width: 2),
                     usingOutline: .init(color: .white, width: 1)),
                 debugLevels: $debugLevels
-            )
+            ).frame(width: 120)
         }
         .buttonStyle(.borderless)
         .background(

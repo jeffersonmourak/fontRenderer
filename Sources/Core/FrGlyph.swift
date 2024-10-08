@@ -118,7 +118,11 @@ class FrGlyph {
     }
 
     public var width: Double {
-        return glyph.layout.width
+
+        let leftSideBearing = glyph.horizontalMetrics.leftSideBearing
+        let advanceWidth = glyph.horizontalMetrics.advanceWidth
+
+        return Double(advanceWidth) + Double(leftSideBearing)
     }
 
     public var height: Double {
