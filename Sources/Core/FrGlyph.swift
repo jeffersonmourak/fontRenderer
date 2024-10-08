@@ -118,11 +118,11 @@ class FrGlyph {
     }
 
     public var width: Double {
-        Double(glyph.layout.width - 50)
+        return glyph.layout.width
     }
 
     public var height: Double {
-        glyph.layout.height - Double(glyph.layout.horizontalMetrics.descent)
+        glyph.layout.height
     }
 
     public func DEBUG__SetDebugOptions(_ options: [DEBUG__FrOverlayOptions]) {
